@@ -1,0 +1,11 @@
+Package: bkmrGen
+Title: Generalized Bayesian Kernel Machine Regression with Distributed Methods for Computational Scalability
+Version: 0.0.0.9000
+Authors@R: 
+    person("Luke", "Duttweiler", , "lduttweiler@hsph.harvard.edu", role = c("aut", "cre"),
+           comment = c(ORCID = "0000-0002-0467-995X"))
+Description: Implements Bayesian kernel machine regression (BKMR) under a general link function. In order to improve scalability, MCMC algorithms are run under a distributed divide-and-conquer framework.
+License: GPL (>= 3)
+Encoding: UTF-8
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.3.1
