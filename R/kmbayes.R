@@ -55,11 +55,12 @@ kmbayes <- function(y,
     return(do.call(sampler, sampCall))
   })
 
-  ###################
-  #Reconstruct Sample
-  ###################
+  #######################
+  #Reconstruct Posterior
+  #######################
 
   ###################
   #Format Return
   ###################
+  return(samples)
 }

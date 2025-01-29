@@ -14,7 +14,7 @@ bkmr_mcmc_logit <- function(y,
   ###################
   #Run STAN
   ###################
-  ft <- rstan::sampling(fit_logit, data = stanDat,
+  ft <- rstan::sampling(stanmodels$fit_logit, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
                         chains = nchains)
 
