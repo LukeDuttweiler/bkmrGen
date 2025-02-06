@@ -18,5 +18,9 @@ bkmr_mcmc_logit <- function(y,
                         iter = iter + warmup, warmup = warmup,
                         chains = nchains)
 
-  return(ft)
+  ###################
+  #Get MCMC Samples
+  ###################
+  samples <- rstan::extract(ft)
+  return(samples)
 }

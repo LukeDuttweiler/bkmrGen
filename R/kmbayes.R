@@ -59,8 +59,18 @@ kmbayes <- function(y,
   #Reconstruct Posterior
   #######################
 
+  #Get Beta Posteriors
+  betaSamps <- lapply(samples, getElement, 'beta')
+
+  betaPosts <- lapply(1:ncol(betaSamps[[1]]), function(i){
+    sampI <- lapply(betaSamps, function(b){return(b[,i])})
+    postI <- wasp_univariate(sampI)
+    return(postI)
+  })
+
+
   ###################
   #Format Return
   ###################
-  return(samples)
+  return(betaPosts)
 }
