@@ -16,12 +16,23 @@ kmbayes <- function(y,
                     knots = NULL,
                     ztest = NULL,
                     rmethod = 'varying',
-                    est.h = FALSE){
+                    est.h = FALSE,
+                    WASPSolver = 'lpsolve'){
+  time1 <- Sys.time()
   argg <- as.list(match.call())
   ###################
   #Input Error Checks
   ###################
 
+  #Check if ROI package exists, alert if not.
+  if(K!= 1){
+    ROIName <- paste0('ROI.plugin.', WASPSolver)
+    if(!ROIName %in% rownames(installed.packages())){
+      stop(paste0('In order to use optimizer ', WASPSolver,
+                  ", please run install.packages('", ROIName,
+                  "'), or pick a different solver."))
+    }
+  }
   ###################
   #Warnings
   ###################
@@ -64,13 +75,27 @@ kmbayes <- function(y,
 
   betaPosts <- lapply(1:ncol(betaSamps[[1]]), function(i){
     sampI <- lapply(betaSamps, function(b){return(b[,i])})
-    postI <- wasp_univariate(sampI)
+    postI <- wasp_univariate(sampI, solver = WASPSolver)
     return(postI)
   })
 
+  time2 <- Sys.time()
 
   ###################
   #Format Return
   ###################
-  return(betaPosts)
+  ret <- list('h.hat' = NULL,
+              'beta' = NULL,
+              'lambda' = NULL,
+              'sigsq.eps' = NULL,
+              'r' = NULL,
+              'acc.r' = NULL,
+              'acc.lambda' = NULL,
+              'delta' = NULL,
+              'acc.rdelta' = NULL,
+              'move.type' = NULL,
+              'est.h' = NULL,
+              'time1' = time2-time1)
+  ret <- c(ret, argg[-1])
+  return(ret)
 }
