@@ -1,4 +1,16 @@
-wasp_univariate <- function(sampList, numAtoms = 100, solver = 'lpsolve'){
+#' Get Univariate Wasserstein Posterior
+#'
+#' Takes list of samples from univariate sub-sample posteriors and returns samples from the Wasserstein Posterior. Utilizes Algorithm 1 fromSrivastava et al. (2018), assuming theta_ij is univariate and f is the identity function.
+#'
+#' @param sampList List of samples from univariate posterior. Each sample must be a numeric vector.
+#' @param numAtoms Number of atoms desired for calculating WASP
+#' @param solver Linear-program solver to use. Solvers available are provided by the R package \code{\link{ROI}}.
+#' @param n_samps Number of samples to return from WASP. Defaults as length of first sub-sample provided in sampList.
+#'
+#' @return n_samps samples from WASP
+#'
+wasp_univariate <- function(sampList, numAtoms = 100, solver = 'lpsolve',
+                            n_samps = length(sampList[[1]])){
   #Algorithm 1 from Srivastava et al. (2018), assuming \theta_ij is univariate and
   #f is the identity function
 
@@ -19,18 +31,31 @@ wasp_univariate <- function(sampList, numAtoms = 100, solver = 'lpsolve'){
 
   #STEP 5
   medPost <- wasp_linProg(DList = Djs, atomMat = atomMat, solver = solver)
+  medPost <- pmax(medPost, rep(0, length(medPost)))
 
   #SAMPLE FROM ATOMS BASED ON SOLUTION
   wasp_sample <- sample(atomMat, length(sampList[[1]]), replace = TRUE, prob = medPost)
 
-  #GET KERNEL DENSITY ESTIMATE
-  wasp_dens <- KernSmooth::bkde(wasp_sample, bandwidth = max(diff(atomMat)[1], 1),
-                                range = range(atomMat))
+  #GET KERNEL DENSITY ESTIMATE (Not sure we need this?)
+  #wasp_dens <- KernSmooth::bkde(wasp_sample, bandwidth = max(diff(atomMat)[1], 1),
+  #                              range = range(atomMat))
 
   #RETURN POSTERIOR RESULTS
-  return(list(dens = wasp_dens, samp = wasp_sample))
+  return(wasp_sample)
 }
 
+
+
+#' Run Linear Program for calculating WASP
+#'
+#' Linear program for calculating Wasserstein Posterior (WASP). See \code{\link{wasp_univariate}}.
+#'
+#' @param DList List of D matrices from WASP algorithm
+#' @param atomMat Matrix of atoms from WASP algorithm
+#' @param solver Linear program solver to use.
+#'
+#' @return Solution to WASP linear program
+#'
 wasp_linProg <- function(DList, atomMat, solver = 'lpsolve'){
   #constants
   K <- length(DList)
@@ -81,7 +106,7 @@ wasp_linProg <- function(DList, atomMat, solver = 'lpsolve'){
   lp <- ROI::OP(obj, const)
 
   #Solution
-  solution <- ROI::ROI_solve(lp, solver = 'lpsolve')
+  solution <- ROI::ROI_solve(lp, solver = solver)
 
   return(ROI::solution(solution)[1:length(atomMat)])
 }

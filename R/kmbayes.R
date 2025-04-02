@@ -1,7 +1,40 @@
+#' Fit Bayesian Kernel Machine Regression
+#'
+#' Main function to fit BKMR using MCMC methods and divide-and-conquer approaches with WASP
+#'
+#' TODO: MUCH more work on function, much more work on documentation
+#'
+#' @param y Outcome
+#' @param Z
+#' @param X
+#' @param K
+#' @param n_samps
+#' @param iter
+#' @param warmup
+#' @param nchains
+#' @param family
+#' @param id
+#' @param verbose
+#' @param Znew
+#' @param starting.values
+#' @param control.params
+#' @param varsel
+#' @param groups
+#' @param knots
+#' @param ztest
+#' @param rmethod
+#' @param est.h
+#' @param WASPSolver
+#'
+#' @return
+#' @export
+#'
+#' @examples
 kmbayes <- function(y,
                     Z,
                     X,
                     K = 1,
+                    n_samps = 500,
                     iter = 1000,
                     warmup = 50,
                     nchains = 1,
@@ -75,7 +108,7 @@ kmbayes <- function(y,
 
   betaPosts <- lapply(1:ncol(betaSamps[[1]]), function(i){
     sampI <- lapply(betaSamps, function(b){return(b[,i])})
-    postI <- wasp_univariate(sampI, solver = WASPSolver)
+    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
     return(postI)
   })
 
@@ -85,7 +118,7 @@ kmbayes <- function(y,
   #Format Return
   ###################
   ret <- list('h.hat' = NULL,
-              'beta' = NULL,
+              'beta' = betaPosts,
               'lambda' = NULL,
               'sigsq.eps' = NULL,
               'r' = NULL,
@@ -95,7 +128,8 @@ kmbayes <- function(y,
               'acc.rdelta' = NULL,
               'move.type' = NULL,
               'est.h' = NULL,
-              'time1' = time2-time1)
+              'time1' = time2-time1,
+              'allSamples' = samples)
   ret <- c(ret, argg[-1])
   return(ret)
 }
