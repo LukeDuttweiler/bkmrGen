@@ -1,3 +1,11 @@
+bkmr_mcmc_gaussian <- function(){
+
+}
+
+bkmr_mcmc_probit <- function(){
+
+}
+
 #' BKMR Sampling on Logit Model using Hamiltonian Monte Carlo
 #'
 #' Fits bkmr_logit model using STAN. See file inst/stan/fit_logit.stan for STAN specifications.

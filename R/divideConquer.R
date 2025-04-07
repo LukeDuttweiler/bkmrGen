@@ -11,6 +11,11 @@
 #'
 wasp_univariate <- function(sampList, numAtoms = 100, solver = 'lpsolve',
                             n_samps = length(sampList[[1]])){
+  #IF only one sample is provided, return that sample
+  if(length(sampList) == 1){
+    return(sampList[[1]])
+  }
+
   #Algorithm 1 from Srivastava et al. (2018), assuming \theta_ij is univariate and
   #f is the identity function
 
