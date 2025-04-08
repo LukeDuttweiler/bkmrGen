@@ -57,7 +57,7 @@ wasp_univariate <- function(sampList, numAtoms = 100, solver = 'lpsolve',
 #'
 #' @param DList List of D matrices from WASP algorithm
 #' @param atomMat Matrix of atoms from WASP algorithm
-#' @param solver Linear program solver to use.
+#' @param solver Linear program solver to use, uses ROI package.
 #'
 #' @return Solution to WASP linear program
 #'

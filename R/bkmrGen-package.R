@@ -2,9 +2,11 @@
 "_PACKAGE"
 
 ## usethis namespace: start
-#' @importFrom rstan sampling
-#' @import Rcpp
 #' @import methods
+#' @import Rcpp
+#' @importFrom magrittr %<>%
+#' @importFrom magrittr %>%
+#' @importFrom rstan sampling
 #' @useDynLib bkmrGen, .registration=TRUE
 ## usethis namespace: end
 NULL

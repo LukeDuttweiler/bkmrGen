@@ -3,5 +3,8 @@
 export(kmbayes)
 import(Rcpp)
 import(methods)
+importFrom(magrittr,"%<>%")
+importFrom(magrittr,"%>%")
 importFrom(rstan,sampling)
+importFrom(tmvtnorm,rtmvnorm)
 useDynLib(bkmrGen, .registration=TRUE)
