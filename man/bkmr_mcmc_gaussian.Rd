@@ -19,6 +19,7 @@ bkmr_mcmc_gaussian(
   rmethod,
   est.h,
   knots,
+  ztest,
   control.params,
   verbose,
   missingX,

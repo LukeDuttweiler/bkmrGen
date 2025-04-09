@@ -98,9 +98,6 @@ bkmr_mcmc_gaussian <- function(y,
 
   ## components if grouped model selection is being done
   if (!is.null(groups)) {
-    if (!varsel) {
-      stop("if doing grouped variable selection, must set varsel = TRUE")
-    }
     rdelta.update <- rdelta.group.update
     control.params$group.params <- list(groups = groups, sel.groups = sapply(unique(groups), function(x) min(seq_along(groups)[groups == x])), neach.group = sapply(unique(groups), function(x) sum(groups %in% x)))
   }
@@ -361,9 +358,9 @@ bkmr_mcmc_probit <- function(y,
     chain$acc.rdelta <- rep(0, iter)
     chain$move.type <- rep(0, iter)
   }
-  if (family == "binomial") {
-    chain$ystar <- matrix(0, iter, length(y))
-  }
+
+  #Set up latent variable since this is probit model
+  chain$ystar <- matrix(0, iter, length(y))
 
   ## components to predict h(Znew)
   if (!is.null(Znew)) {
@@ -383,7 +380,7 @@ bkmr_mcmc_probit <- function(y,
   }
 
   ## control parameters (lambda.jump default lower for probit model to improve mixing)
-  control.params.default <- list(lambda.jump = rep(ifelse(family == 'binomial', sqrt(10), 10), data.comps$nlambda),
+  control.params.default <- list(lambda.jump = rep(sqrt(10), data.comps$nlambda),
                                  mu.lambda = rep(10, data.comps$nlambda),
                                  sigma.lambda = rep(10, data.comps$nlambda),
                                  a.p0 = 1, b.p0 = 1, r.prior = "invunif", a.sigsq = 1e-3,
@@ -400,9 +397,6 @@ bkmr_mcmc_probit <- function(y,
 
   ## components if grouped model selection is being done
   if (!is.null(groups)) {
-    if (!varsel) {
-      stop("if doing grouped variable selection, must set varsel = TRUE")
-    }
     rdelta.update <- rdelta.group.update
     control.params$group.params <- list(groups = groups, sel.groups = sapply(unique(groups), function(x) min(seq_along(groups)[groups == x])), neach.group = sapply(unique(groups), function(x) sum(groups %in% x)))
   }
@@ -434,39 +428,25 @@ bkmr_mcmc_probit <- function(y,
     starting.values <- modifyList(starting.values0, starting.values)
     validateStartingValues(varsel, y, X, Z, starting.values, rmethod)
   }
-  if (family == "gaussian") {
-    if (is.null(starting.values$beta) | is.null(starting.values$sigsq.eps)) {
-      lmfit0 <- lm(y ~ Z + X)
+
+  #Starting values for probit model
+  starting.values$sigsq.eps <- 1 ## always equal to 1
+  if (is.null(starting.values$beta) | is.null(starting.values$ystar)) {
+    probitfit0 <- try(glm(y ~ Z + X, family = binomial(link = "probit")))
+    if (!inherits(probitfit0, "try-error")) {
       if (is.null(starting.values$beta)) {
-        coefX <- coef(lmfit0)[grep("X", names(coef(lmfit0)))]
+        coefX <- coef(probitfit0)[grep("X", names(coef(probitfit0)))]
         starting.values$beta <- unname(ifelse(is.na(coefX), 0, coefX))
       }
-      if (is.null(starting.values$sigsq.eps)) {
-        starting.values$sigsq.eps <- summary(lmfit0)$sigma^2
-      }
-    }
-  } else if (family == "binomial") {
-    starting.values$sigsq.eps <- 1 ## always equal to 1
-    if (is.null(starting.values$beta) | is.null(starting.values$ystar)) {
-      probitfit0 <- try(glm(y ~ Z + X, family = binomial(link = "probit")))
-      if (!inherits(probitfit0, "try-error")) {
-        if (is.null(starting.values$beta)) {
-          coefX <- coef(probitfit0)[grep("X", names(coef(probitfit0)))]
-          starting.values$beta <- unname(ifelse(is.na(coefX), 0, coefX))
-        }
-        if (is.null(starting.values$ystar)) {
-          #prd <- predict(probitfit0)
-          #starting.values$ystar <- ifelse(y == 1, abs(prd), -abs(prd))
-          starting.values$ystar <- ifelse(y == 1, 1/2, -1/2)
-        }
-      } else {
-        starting.values$beta <- 0
+      if (is.null(starting.values$ystar)) {
         starting.values$ystar <- ifelse(y == 1, 1/2, -1/2)
       }
+    } else {
+      starting.values$beta <- 0
+      starting.values$ystar <- ifelse(y == 1, 1/2, -1/2)
     }
   }
 
-  ##print (starting.values)
   ##truncate vectors that are too long
   if (length(starting.values$h.hat) > length(y)) {
     starting.values$h.hat <- starting.values$h.hat[1:length(y)]
@@ -491,10 +471,11 @@ bkmr_mcmc_probit <- function(y,
   if (varsel) {
     chain$delta[1,ztest] <- starting.values$delta
   }
-  if (family == "binomial") {
-    chain$ystar[1, ] <- starting.values$ystar
-    chain$sigsq.eps[] <- starting.values$sigsq.eps ## does not get updated
-  }
+
+  #Starting values for probit model specifically
+  chain$ystar[1, ] <- starting.values$ystar
+  chain$sigsq.eps[] <- starting.values$sigsq.eps ## does not get updated
+
   if (!is.null(groups)) {
     ## make sure starting values are consistent with structure of model
     if (!all(sapply(unique(groups), function(x) sum(chain$delta[1, ztest][groups == x])) == 1)) {
@@ -523,27 +504,18 @@ bkmr_mcmc_probit <- function(y,
   for (s in 2:iter) {
 
     ## continuous version of outcome (latent outcome under binomial probit model)
-    if (family == "gaussian") {
-      ycont <- y
-    } else if (family == "binomial") {
-      if (est.h) {
-        chain$ystar[s,] <- ystar.update(y = y, X = X, beta = chain$beta[s - 1,], h = chain$h[s - 1, ])
-      } else {
-        chain$ystar[s,] <- ystar.update.noh(y = y, X = X, beta = chain$beta[s - 1,], Vinv = Vcomps$Vinv, ystar = chain$ystar[s - 1, ])
-      }
-      ycont <- chain$ystar[s, ]
+    if (est.h) {
+      chain$ystar[s,] <- ystar.update(y = y, X = X, beta = chain$beta[s - 1,], h = chain$h[s - 1, ])
+    } else {
+      chain$ystar[s,] <- ystar.update.noh(y = y, X = X, beta = chain$beta[s - 1,], Vinv = Vcomps$Vinv, ystar = chain$ystar[s - 1, ])
     }
+    ycont <- chain$ystar[s, ]
 
     ## generate posterior samples from marginalized distribution P(beta, sigsq.eps, lambda, r | y)
 
     ## beta
     if (!missingX) {
       chain$beta[s,] <- beta.update(X = X, Vinv = Vcomps$Vinv, y = ycont, sigsq.eps = chain$sigsq.eps[s - 1])
-    }
-
-    ## \sigma_\epsilon^2
-    if (family == "gaussian") {
-      chain$sigsq.eps[s] <- sigsq.eps.update(y = ycont, X = X, beta = chain$beta[s,], Vinv = Vcomps$Vinv, a.eps = control.params$a.sigsq, b.eps = control.params$b.sigsq)
     }
 
     ## lambda

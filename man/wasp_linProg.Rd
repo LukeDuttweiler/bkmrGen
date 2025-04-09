@@ -11,7 +11,7 @@ wasp_linProg(DList, atomMat, solver = "lpsolve")
 
 \item{atomMat}{Matrix of atoms from WASP algorithm}
 
-\item{solver}{Linear program solver to use.}
+\item{solver}{Linear program solver to use, uses ROI package.}
 }
 \value{
 Solution to WASP linear program
