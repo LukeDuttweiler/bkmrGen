@@ -457,7 +457,7 @@ newh.update <- function(Z, Znew, Vcomps, lambda, sigsq.eps, r, y, X, beta, data.
 }
 
 
-#THIS SHOULD GO SOMEWHERE ELSE
+#THESE SHOULD GO SOMEWHERE ELSE
 
 ## function to obtain posterior samples of h(znew) from fit of Bayesian kernel machine regression
 predz.samps <- function(fit, Znew, verbose = TRUE) {

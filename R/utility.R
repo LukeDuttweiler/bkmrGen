@@ -75,6 +75,37 @@ makeVcomps <- function(r, lambda, Z, data.comps) {
   Vcomps
 }
 
+#' Create Values needed in makeVcomps, depending on if using random intercept model
+#'
+#' @param id Vector of id values (for random intercept model), default in kmbayes is NULL
+#' @param knots Vector of knots for Gaussian Process modification of V
+#'
+#' @return List of options used by makeVcomps to estiamte V
+createDataComps <- function(id, knots){
+  if (!is.null(id)) { ## for random intercept model
+    randint <- TRUE
+    id <- as.numeric(as.factor(id))
+    nid <- length(unique(id))
+    nlambda <- 2
+
+    ## matrix that multiplies the random intercept vector
+    TT <- matrix(0, length(id), nid)
+    for (i in 1:nid) {
+      TT[which(id == i), i] <- 1
+    }
+    crossTT <- tcrossprod(TT)
+    rm(TT, nid)
+  } else {
+    randint <- FALSE
+    nlambda <- 1
+    crossTT <- 0
+  }
+  data.comps <- list(randint = randint, nlambda = nlambda, crossTT = crossTT)
+  if (!is.null(knots)) data.comps$knots <- knots
+
+  return(data.comps)
+}
+
 
 #' Control bkmr printed output frequency and detail
 #'

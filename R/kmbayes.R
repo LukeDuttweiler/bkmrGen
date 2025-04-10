@@ -2,7 +2,10 @@
 #'
 #' Main function to fit BKMR using MCMC methods and divide-and-conquer approaches with WASP
 #'
-#' TODO: MUCH more work on function, much more work on documentation
+#' TODO:
+#' Make sure output works with other bkmr functions
+#' Make sure all standard bkmr options still run
+#' Deep dive on logit and poisson sampling functions
 #'
 #' @param y Outcome
 #' @param Z
@@ -54,6 +57,7 @@ kmbayes <- function(y,
 
   #All arguments
   argg <- as.list(environment())
+  argg$time1 <- Sys.time()
 
 
   ###################
@@ -203,6 +207,11 @@ kmbayes <- function(y,
     }
   }
 
+  ###################################
+  #Prep Variables That May Be Needed
+  ###################################
+  argg$data.comps <- createDataComps(id = id, knots = knots)
+
   ###################
   #Split Sample
   ###################
@@ -250,49 +259,74 @@ kmbayes <- function(y,
   #Get Beta Posteriors
   betaSamps <- lapply(samples, getElement, 'beta')
 
-  betaPosts <- lapply(1:ncol(betaSamps[[1]]), function(i){
+  betaPosts <- sapply(1:ncol(betaSamps[[1]]), function(i){
     sampI <- lapply(betaSamps, function(b){return(b[,i])})
     postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
     return(postI)
   })
 
+  #Get Lambda Posteriors
+  lambdaSamps <- lapply(samples, getElement, 'lambda')
+
+  lambdaPosts <- sapply(1:ncol(lambdaSamps[[1]]), function(i){
+    sampI <- lapply(lambdaSamps, function(b){return(b[,i])})
+    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
+    return(postI)
+  })
+
+  #Get sigsq Posteriors
+  sigsqSamps <- lapply(samples, getElement, 'sigsq.eps')
+  sigsqSamps <- lapply(sigsqSamps, as.matrix)
+
+  sigsqPosts <- sapply(1:ncol(sigsqSamps[[1]]), function(i){
+    sampI <- lapply(sigsqSamps, function(b){return(b[,i])})
+    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
+    return(postI)
+  })
+
+  #Get r Posteriors
+  rSamps <- lapply(samples, getElement, 'r')
+  rSamps <- lapply(rSamps, as.matrix)
+
+  rPosts <- sapply(1:ncol(rSamps[[1]]), function(i){
+    sampI <- lapply(rSamps, function(b){return(b[,i])})
+    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
+    return(postI)
+  })
+
+  #Get delta Posteriors
+  deltaSamps <- lapply(samples, getElement, 'delta')
+  deltaSamps <- lapply(deltaSamps, as.matrix)
+
+  deltaPosts <- sapply(1:ncol(deltaSamps[[1]]), function(i){
+    sampI <- lapply(deltaSamps, function(b){return(b[,i])})
+    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
+    return(postI)
+  })
+
+  #Get h Posteriors
+  hSamps <- lapply(samples, getElement, 'h.hat')
+  hSamps <- lapply(hSamps, as.matrix)
+
+  hPosts <- sapply(1:ncol(hSamps[[1]]), function(i){
+    sampI <- lapply(hSamps, function(b){return(b[,i])})
+    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
+    return(postI)
+  })
+
+
   ###################
   #Format Return
   ###################
-  ret <- list('h.hat' = NULL,
+  ret <- list('h.hat' = hPosts,
               'beta' = betaPosts,
-              'lambda' = NULL,
-              'sigsq.eps' = NULL,
-              'r' = NULL,
-              'acc.r' = NULL,
-              'acc.lambda' = NULL,
-              'delta' = NULL,
-              'acc.rdelta' = NULL,
-              'move.type' = NULL,
-              'est.h' = NULL,
+              'lambda' = lambdaPosts,
+              'sigsq.eps' = sigsqPosts,
+              'r' = rPosts,
+              'delta' = deltaPosts,
+              'time2' = Sys.time(),
               'allSamples' = samples)
   ret <- c(ret, argg)
+  class(ret) <- c('bkmrfit', class(ret))
   return(ret)
-
-  #########################################################
-  #ORIGINAL PACKAGE CODE
-  #########################################################
-
-
-  control.params$r.params <- NULL
-  chain$time2 <- Sys.time()
-  chain$iter <- nsamp
-  chain$family <- family
-  chain$starting.values <- starting.values
-  chain$control.params <- control.params
-  chain$X <- X
-  chain$Z <- Z
-  chain$y <- y
-  chain$ztest <- ztest
-  chain$data.comps <- data.comps
-  if (!is.null(Znew)) chain$Znew <- Znew
-  if (!is.null(groups)) chain$groups <- groups
-  chain$varsel <- varsel
-  class(chain) <- c("bkmrfit", class(chain))
-  chain
 }

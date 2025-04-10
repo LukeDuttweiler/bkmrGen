@@ -23,30 +23,10 @@ bkmr_mcmc_gaussian <- function(y,
                                control.params,
                                verbose,
                                missingX,
+                               data.comps,
                                ...){
 
   ## start JB code
-  if (!is.null(id)) { ## for random intercept model
-    randint <- TRUE
-    id <- as.numeric(as.factor(id))
-    nid <- length(unique(id))
-    nlambda <- 2
-
-    ## matrix that multiplies the random intercept vector
-    TT <- matrix(0, length(id), nid)
-    for (i in 1:nid) {
-      TT[which(id == i), i] <- 1
-    }
-    crossTT <- tcrossprod(TT)
-    rm(TT, nid)
-  } else {
-    randint <- FALSE
-    nlambda <- 1
-    crossTT <- 0
-  }
-  data.comps <- list(randint = randint, nlambda = nlambda, crossTT = crossTT)
-  if (!is.null(knots)) data.comps$knots <- knots
-  rm(randint, nlambda, crossTT)
 
   ## create empty matrices to store the posterior draws in
   chain <- list(h.hat = matrix(0, iter, nrow(Z)),
@@ -98,8 +78,11 @@ bkmr_mcmc_gaussian <- function(y,
 
   ## components if grouped model selection is being done
   if (!is.null(groups)) {
+    hier_varsel <- TRUE
     rdelta.update <- rdelta.group.update
     control.params$group.params <- list(groups = groups, sel.groups = sapply(unique(groups), function(x) min(seq_along(groups)[groups == x])), neach.group = sapply(unique(groups), function(x) sum(groups %in% x)))
+  }else{
+    hier_varsel <- FALSE
   }
 
   ## specify functions for doing the Metropolis-Hastings steps to update r
@@ -189,7 +172,6 @@ bkmr_mcmc_gaussian <- function(y,
   )
 
   ## start sampling ####
-  chain$time1 <- Sys.time()
   for (s in 2:iter) {
 
     ## continuous version of outcome
@@ -300,6 +282,14 @@ bkmr_mcmc_gaussian <- function(y,
 
   }
 
+  #Remove r.params from control.params for later functions
+  control.params$r.params <- NULL
+
+  #Put data into chain return (so subsets are easily identified)
+  chain$y <- y
+  chain$X <- X
+  chain$Z <- Z
+
   return(list(sampOutput = chain,
               starting.values = starting.values,
               control.params = control.params))
@@ -343,30 +333,10 @@ bkmr_mcmc_probit <- function(y,
                              control.params,
                              verbose,
                              missingX,
+                             data.comps,
                              ...){
 
   ## start JB code
-  if (!is.null(id)) { ## for random intercept model
-    randint <- TRUE
-    id <- as.numeric(as.factor(id))
-    nid <- length(unique(id))
-    nlambda <- 2
-
-    ## matrix that multiplies the random intercept vector
-    TT <- matrix(0, length(id), nid)
-    for (i in 1:nid) {
-      TT[which(id == i), i] <- 1
-    }
-    crossTT <- tcrossprod(TT)
-    rm(TT, nid)
-  } else {
-    randint <- FALSE
-    nlambda <- 1
-    crossTT <- 0
-  }
-  data.comps <- list(randint = randint, nlambda = nlambda, crossTT = crossTT)
-  if (!is.null(knots)) data.comps$knots <- knots
-  rm(randint, nlambda, crossTT)
 
   ## create empty matrices to store the posterior draws in
   chain <- list(h.hat = matrix(0, iter, nrow(Z)),
@@ -421,8 +391,11 @@ bkmr_mcmc_probit <- function(y,
 
   ## components if grouped model selection is being done
   if (!is.null(groups)) {
+    hier_varsel <- TRUE
     rdelta.update <- rdelta.group.update
     control.params$group.params <- list(groups = groups, sel.groups = sapply(unique(groups), function(x) min(seq_along(groups)[groups == x])), neach.group = sapply(unique(groups), function(x) sum(groups %in% x)))
+  }else{
+    hier_varsel <- FALSE
   }
 
   ## specify functions for doing the Metropolis-Hastings steps to update r
@@ -524,7 +497,6 @@ bkmr_mcmc_probit <- function(y,
   )
 
   ## start sampling ####
-  chain$time1 <- Sys.time()
   for (s in 2:iter) {
 
     ## continuous version of outcome (latent outcome under binomial probit model)
@@ -634,6 +606,15 @@ bkmr_mcmc_probit <- function(y,
     ## print details of the model fit so far
     print_diagnostics(verbose = verbose, opts = opts, curr_iter = s, tot_iter = iter, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest, Z = Z, groups = groups)
   }
+
+  #Remove r.params from control.params for later functions
+  control.params$r.params <- NULL
+
+  #Put data into chain return (so subsets are easily identified)
+  chain$y <- y
+  chain$X <- X
+  chain$Z <- Z
+
   return(list(sampOutput = chain,
               starting.values = starting.values,
               control.params = control.params))
