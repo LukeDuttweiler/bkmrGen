@@ -300,7 +300,22 @@ bkmr_mcmc_gaussian <- function(y,
 
   }
 
-  return(chain)
+  return(list(sampOutput = chain,
+              starting.values = starting.values,
+              control.params = control.params))
+}
+
+#' Redirect Binomial family using specified link function (default will be 'logit')
+#'
+#' @param link character vector giving link function name. Currently implemented for 'logit' and 'probit'
+#' @param ... All arguments passed through to sampler function
+#'
+#' @return Output from sampler function
+bkmr_mcmc_binomial <- function(link, ...){
+  #Redirect based on link function
+  samplerLink <- eval(parse(text = paste0('bkmr_mcmc_', link)))
+
+  return(samplerLink(...))
 }
 
 #' MCMC code to fit Probit BKMR Model
@@ -316,9 +331,18 @@ bkmr_mcmc_probit <- function(y,
                              starting.values,
                              nchains,
                              iter,
-                             id,
                              warmup,
+                             id,
+                             varsel,
+                             Znew,
+                             groups,
+                             rmethod,
+                             est.h,
+                             knots,
+                             ztest,
                              control.params,
+                             verbose,
+                             missingX,
                              ...){
 
   ## start JB code
@@ -610,7 +634,9 @@ bkmr_mcmc_probit <- function(y,
     ## print details of the model fit so far
     print_diagnostics(verbose = verbose, opts = opts, curr_iter = s, tot_iter = iter, chain = chain, varsel = varsel, hier_varsel = hier_varsel, ztest = ztest, Z = Z, groups = groups)
   }
-  return(chain)
+  return(list(sampOutput = chain,
+              starting.values = starting.values,
+              control.params = control.params))
 }
 
 #' BKMR Sampling on Logit Model using Hamiltonian Monte Carlo
@@ -626,10 +652,17 @@ bkmr_mcmc_logit <- function(y,
                             Z,
                             X,
                             starting.values = list(rho = 2),
+                            control.params,
                             nchains = 1,
                             iter = 1000,
                             warmup = 50,
                             ...){
+  #####################
+  #Set Starting Values
+  #####################
+  starting.values.default <- list(rho = 2)
+  starting.values <- modifyList(starting.values.default, as.list(starting.values))
+
 
   ###################
   #Format for STAN
@@ -647,7 +680,9 @@ bkmr_mcmc_logit <- function(y,
   #Get MCMC Samples
   ###################
   samples <- rstan::extract(ft)
-  return(samples)
+  return(list(sampOutput = samples,
+              starting.values = starting.values,
+              control.params = control.params))
 }
 
 #' BKMR Sampling on Poisson Model using Hamiltonian Monte Carlo
@@ -663,10 +698,17 @@ bkmr_mcmc_poisson <- function(y,
                               Z,
                               X,
                               starting.values = list(rho = 2),
+                              control.params = list(),
                               nchains = 1,
                               iter = 1000,
                               warmup = 50,
                               ...){
+  #####################
+  #Set Starting Values
+  #####################
+  starting.values.default <- list(rho = 2)
+  starting.values <- modifyList(starting.values.default, as.list(starting.values))
+
   ###################
   #Format for STAN
   ###################
@@ -683,5 +725,7 @@ bkmr_mcmc_poisson <- function(y,
   #Get MCMC Samples
   ###################
   samples <- rstan::extract(ft)
-  return(samples)
+  return(list(sampOutput = samples,
+              starting.values = starting.values,
+              control.params = control.params))
 }

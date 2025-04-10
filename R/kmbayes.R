@@ -158,7 +158,7 @@ kmbayes <- function(y,
   }
 
   if (!family %in% c("gaussian", "binomial", 'poisson')) {
-    stop("family", family, "not yet implemented; must specify 'gaussian', 'binomial', or 'poisson'")
+    stop("family ", family, " not yet implemented; must specify 'gaussian', 'binomial', or 'poisson'")
   }
 
   #Gaussian options
@@ -220,18 +220,28 @@ kmbayes <- function(y,
   #Use family name to specify sampler
   sampler <- eval(parse(text = paste0('bkmr_mcmc_', family)))
 
-  samples <- lapply(1:K, function(k){
+  groupRuns <- lapply(1:K, function(k){
     #Prepare arguments for sampler (per group)
     sampCall <- argg
     sampCall$y <- y[groupIdx == k]
     sampCall$Z <- Z[groupIdx == k,, drop = F]
     sampCall$X <- X[groupIdx == k,, drop = F]
-    sampCall$family <- NULL
-    sampCall$K <- NULL
+    sampCall$link <- link
     sampCall$missingX <- missingX
 
     return(do.call(sampler, sampCall))
   })
+
+  #######################
+  #Recover Full Control Params and Starting Values
+  #######################
+  argg$starting.values <- groupRuns[[1]]$starting.values
+  argg$control.params <- groupRuns[[1]]$control.params
+
+  #######################
+  #Recover Samples
+  #######################
+  samples <- lapply(groupRuns, getElement, 'sampOutput')
 
   #######################
   #Reconstruct Posterior
@@ -245,8 +255,6 @@ kmbayes <- function(y,
     postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
     return(postI)
   })
-
-  time2 <- Sys.time()
 
   ###################
   #Format Return
