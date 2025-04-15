@@ -503,7 +503,15 @@ bkmr_mcmc_probit <- function(y,
     if (est.h) {
       chain$ystar[s,] <- ystar.update(y = y, X = X, beta = chain$beta[s - 1,], h = chain$h[s - 1, ])
     } else {
-      chain$ystar[s,] <- ystar.update.noh(y = y, X = X, beta = chain$beta[s - 1,], Vinv = Vcomps$Vinv, ystar = chain$ystar[s - 1, ])
+      #Try without h, if it fails, use h
+      res <- ystar.update.noh(y = y, X = X, beta = chain$beta[s - 1,], Vinv = Vcomps$Vinv, ystar = chain$ystar[s - 1, ])
+      if(any(is.na(res))){
+        if(all(chain$h[s-1,] == 0)){ #Make sure h is updated for the necessary iteration
+          chain$h[s-1,] <- h.update(lambda = chain$lambda[s-1,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s-1], y = ycont, X = X, beta = chain$beta[s-1,], r = chain$r[s-1,], Z = Z, data.comps = data.comps)$hsamp
+        }
+        res <- ystar.update(y = y, X = X, beta = chain$beta[s - 1,], h = chain$h[s - 1, ])
+      }
+      chain$ystar[s,] <- res
     }
     ycont <- chain$ystar[s, ]
 
@@ -525,6 +533,7 @@ bkmr_mcmc_probit <- function(y,
       }
     }
     chain$lambda[s,] <- lambdaSim
+
 
     ## r
     rSim <- chain$r[s - 1,]

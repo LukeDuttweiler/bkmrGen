@@ -325,7 +325,7 @@ kmbayes <- function(y,
               'r' = rPosts,
               'delta' = deltaPosts,
               'time2' = Sys.time(),
-              'allSamples' = samples)
+              'subSamples' = samples)
   ret <- c(ret, argg)
   class(ret) <- c('bkmrfit', class(ret))
   return(ret)

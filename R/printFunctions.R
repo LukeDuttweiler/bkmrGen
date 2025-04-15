@@ -12,8 +12,9 @@ print_diagnostics <- function(verbose, opts, curr_iter, tot_iter, chain, varsel,
 
   if (s %in% print_iter) {
     #if (verbose) message("------------------------------------------")
-    if (verbose) cat("\n")
+    if (verbose){ cat("\n")
     message("Iteration: ", s, " (", perc_iter_completed, "% completed; ", round(elapsed_time, verbose_digits), " ", attr(elapsed_time, "units"), " elapsed)")
+    }
 
     if (verbose) {
       cat("Acceptance rates for Metropolis-Hastings algorithm:\n")
