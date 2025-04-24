@@ -26,7 +26,7 @@ MHstep(
 \arguments{
 \item{r}{Augmented variables in kernel matrix}
 
-\item{lambda}{Variance component, tau*sigma^{-2}}
+\item{lambda}{Variance component, tau*sigma^\{-2\}}
 
 \item{lambda.star}{Proposal value for lambda}
 
@@ -50,7 +50,7 @@ MHstep(
 
 \item{negdifflogproposal}{Negative difference of the log proposal distributions for MH}
 
-\item{Vcomps}{Components of V_{lambda, Z, r} matrix, calculated with \code{\link{makeVcomps}}}
+\item{Vcomps}{Components of V_\{lambda, Z, r\} matrix, calculated with \code{\link{makeVcomps}}}
 
 \item{move.type}{Type of move proposed for delta/r, not utilized, just passed through}
 

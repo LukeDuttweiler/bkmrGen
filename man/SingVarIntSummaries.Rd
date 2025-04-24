@@ -21,7 +21,11 @@ SingVarIntSummaries(
 \arguments{
 \item{fit}{An object containing the results returned by a the \code{kmbayes} function}
 
-\item{y}{Outcome}
+\item{y}{a vector of outcome data of length \code{n}.}
+
+\item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
+
+\item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
 \item{which.z}{vector indicating which variables (columns of \code{Z}) for which the summary should be computed}
 

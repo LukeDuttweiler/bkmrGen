@@ -1,4 +1,4 @@
-test_that("ExtractEsts works on gaussian", {
+test_that("ExtractEsts works for default", {
   set.seed(111)
   dat <- SimData(n = 50, M = 4)
   y <- dat$y
@@ -12,7 +12,7 @@ test_that("ExtractEsts works on gaussian", {
 })
 
 
-test_that("ExtractPIPs works on gaussian", {
+test_that("ExtractPIPs works for default", {
   set.seed(111)
   dat <- SimData(n = 50, M = 4)
   y <- dat$y

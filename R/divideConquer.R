@@ -4,13 +4,16 @@
 #'
 #' @param sampList List of samples from univariate posterior. Each sample must be a numeric vector.
 #' @param numAtoms Number of atoms desired for calculating WASP
-#' @param solver Linear-program solver to use. Solvers available are provided by the R package \code{\link{ROI}}.
+#' @param solver Linear-program solver to use. Solvers available are provided by the R package ROI (see ?ROI for details).
 #' @param n_samps Number of samples to return from WASP. Defaults as length of first sub-sample provided in sampList.
 #'
 #' @return n_samps samples from WASP
 #'
 wasp_univariate <- function(sampList, numAtoms = 100, solver = 'lpsolve',
                             n_samps = length(sampList[[1]])){
+  #Load ROI solver
+  loadROISolver(solver)
+
   #IF only one sample is provided, return that sample
   if(length(sampList) == 1){
     return(sampList[[1]])

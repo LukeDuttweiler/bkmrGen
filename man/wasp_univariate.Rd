@@ -16,7 +16,7 @@ wasp_univariate(
 
 \item{numAtoms}{Number of atoms desired for calculating WASP}
 
-\item{solver}{Linear-program solver to use. Solvers available are provided by the R package \code{\link{ROI}}.}
+\item{solver}{Linear-program solver to use. Solvers available are provided by the R package ROI (see ?ROI for details).}
 
 \item{n_samps}{Number of samples to return from WASP. Defaults as length of first sub-sample provided in sampList.}
 }

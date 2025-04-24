@@ -1,4 +1,4 @@
-test_that("ComputePostmeanHnew works for default", {
+test_that("SamplePred works for default", {
   set.seed(111)
   dat <- SimData(n = 50, M = 4)
   y <- dat$y
@@ -11,6 +11,6 @@ test_that("ComputePostmeanHnew works for default", {
   med_vals <- apply(Z, 2, median)
   Znew <- matrix(med_vals, nrow = 1)
   h_true <- dat$HFun(Znew)
-  expect_no_error(h_est1 <- ComputePostmeanHnew(fitkm, Znew = Znew, method = "approx"))
-  expect_no_error(h_est2 <- ComputePostmeanHnew(fitkm, Znew = Znew, method = "exact"))
+  set.seed(111)
+  expect_no_error(samps3 <- SamplePred(fitkm, Znew = Znew, Xnew = cbind(0)))
 })

@@ -14,8 +14,6 @@
 #'
 #' @return a list containing the predicted values, residuals, and estimated predictor-response function for each degree of smoothness being considered
 #'
-#' @import nlme
-#'
 #' @examples
 #' ## First generate dataset
 #' set.seed(111)
@@ -74,11 +72,11 @@ InvestigatePrior <- function(y, Z, X, ngrid = 50, q.seq = c(2, 1, 1/2, 1/4, 1/8,
       }
 
       group <- rep(1, n0)
-      fit <- lme(y ~ -1+X, random = list(group = pdIdent(~ -1+U)))
+      fit <- nlme::lme(y ~ -1+X, random = list(group = nlme::pdIdent(~ -1+U)))
       #data.frame(sig=(fit$sigma)^2, tau=as.numeric(VarCorr(fit)[1,"Variance"]), rho=1/r, bet=fixef(fit))
       h.hat <- U %*% drop(fit$coef$random[[1]])
-      Vinv <- chol2inv(chol(In + as.numeric(VarCorr(fit)[1,"Variance"])/(fit$sigma)^2*Kmat0))
-      hnew <- drop(as.numeric(VarCorr(fit)[1,"Variance"])/(fit$sigma)^2*Kmat10%*%Vinv%*%(y - X%*%fixef(fit)))
+      Vinv <- chol2inv(chol(In + as.numeric(nlme::VarCorr(fit)[1,"Variance"])/(fit$sigma)^2*Kmat0))
+      hnew <- drop(as.numeric(nlme::VarCorr(fit)[1,"Variance"])/(fit$sigma)^2*Kmat10%*%Vinv%*%(y - X%*%nlme::fixef(fit)))
 
       preds[[i]][, j] <- hnew
       resids[[i]][, j] <- stats::resid(fit)

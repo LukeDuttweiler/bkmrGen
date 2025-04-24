@@ -133,3 +133,20 @@ set_verbose_opts <- function(verbose_freq = NULL, verbose_show_ests = NULL, verb
   )
   opts
 }
+
+loadROISolver <- function(solver){
+  pckgName <- paste0('ROI.plugin.', solver)
+
+  #Does the package exist?
+  pckgExist <- pckgName %in% rownames(installed.packages())
+
+  #If not, attempt to install
+  if(!pckgExist){
+    install.packages(pckgName)
+  }
+
+  #Then load
+  eval(parse(text = paste0('library(', pckgName, ')')))
+
+  return(invisible(NULL))
+}

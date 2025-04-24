@@ -6,39 +6,60 @@
 #' Make sure output works with other bkmr functions
 #' Make sure all standard bkmr options still run
 #' Deep dive on logit and poisson sampling functions
+#' Update Traceplots and diagnostic stuff with genMCMCDiag
+#' Implement multi-chain for original bkmr stuff
+#' Implement warmup for original bkmr stuff
 #'
-#' @param y Outcome
-#' @param Z
-#' @param X
-#' @param K
-#' @param n_samps
-#' @param iter
-#' @param warmup
-#' @param nchains
-#' @param family
-#' @param id
-#' @param verbose
-#' @param Znew
-#' @param starting.values
-#' @param control.params
-#' @param varsel
-#' @param groups
-#' @param knots
-#' @param ztest
-#' @param rmethod
-#' @param est.h
-#' @param WASPSolver
+#' @param y a vector of outcome data of length \code{n}.
+#' @param Z an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.
+#' @param X an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.
+#' @param K Number of splits to make in sample. Results are recombined using WASP.
+#' @param n_samps Total number of samples to return from WASP. Only required if K > 1. Defaults to iter.
+#' @param iter number of iterations to run the sampler
+#' @param warmup Number of iterations to discard as warmups. Defaults to 0
+#' @param nchains Number of MCMC or HMC chains to utilize. Defaults to 1.
+#' @param family family object (see ?family for examples) with family and link information.
+#' @param id optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If NULL then no random intercept will be included.
+#' @param verbose TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting.
+#' @param Znew optional matrix of new predictor values at which to predict \code{h}, where each row represents a new observation. This will slow down the model fitting, and can be done as a post-processing step using \code{\link{SamplePred}}
+#' @param starting.values list of starting values for each parameter. If not specified default values will be chosen.
+#' @param control.params list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.
+#' @param varsel TRUE or FALSE: indicator for whether to conduct variable selection on the Z variables in \code{h}
+#' @param groups optional vector (of length \code{M}) of group indicators for fitting hierarchical variable selection if varsel=TRUE. If varsel=TRUE without group specification, component-wise variable selections will be performed.
+#' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al. (2008). Currently only implemented for models without a random intercept.
+#' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
+#' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
+#' @param est.h TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler. This will slow down the model fitting.
+#' @param WASPSolver Linear-program solver to use. Solvers available are provided by the R package ROI (see ?ROI for details).
 #'
-#' @return
+#' @return an object of class "bkmrfit" (containing the posterior samples from the model fit), which has the associated methods: print, summary
 #' @export
 #'
+#' @seealso For guided examples, go to \url{https://jenfb.github.io/bkmr/overview.html}
+#' @references Bobb, JF, Valeri L, Claus Henn B, Christiani DC, Wright RO, Mazumdar M, Godleski JJ, Coull BA (2015). Bayesian Kernel Machine Regression for Estimating the Health Effects of Multi-Pollutant Mixtures. Biostatistics 16, no. 3: 493-508.
+#' @references Banerjee S, Gelfand AE, Finley AO, Sang H (2008). Gaussian predictive process models for large spatial data sets. Journal of the Royal Statistical Society: Series B (Statistical Methodology), 70(4), 825-848.
+#'
 #' @examples
+#' ## First generate dataset
+#' set.seed(111)
+#' dat <- SimData(n = 50, M = 4)
+#' y <- dat$y
+#' Z <- dat$Z
+#' X <- dat$X
+#'
+#'
+#'
+#' ## Fit model with component-wise variable selection
+#' ## Using only 100 iterations to make example run quickly
+#' ## Typically should use a large number of iterations for inference
+#' set.seed(111)
+#' fitkm <- kmbayes(y = y, Z = Z, X = X, iter = 100, verbose = FALSE, varsel = TRUE)
 kmbayes <- function(y,
                     Z,
                     X,
                     K = 1,
                     iter = 1000,
-                    warmup = 50,
+                    warmup = 0,
                     nchains = 1,
                     n_samps = iter,
                     family = gaussian(),

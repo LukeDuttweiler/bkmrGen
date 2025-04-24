@@ -17,7 +17,21 @@ bkmr_mcmc_logit(
 )
 }
 \arguments{
-\item{y}{Outcome}
+\item{y}{a vector of outcome data of length \code{n}.}
+
+\item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
+
+\item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
+
+\item{starting.values}{list of starting values for each parameter. If not specified default values will be chosen.}
+
+\item{control.params}{list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.}
+
+\item{nchains}{Number of MCMC or HMC chains to utilize. Defaults to 1.}
+
+\item{iter}{number of iterations to run the sampler}
+
+\item{warmup}{Number of iterations to discard as warmups. Defaults to 0}
 
 \item{...}{Catch all to allow package flexibility}
 }

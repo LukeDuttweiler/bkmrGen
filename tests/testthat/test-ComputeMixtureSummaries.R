@@ -1,4 +1,4 @@
-test_that("OverallRiskSummaries works for gaussian", {
+test_that("OverallRiskSummaries works for default", {
   set.seed(111)
   dat <- SimData(n = 50, M = 4)
   y <- dat$y
@@ -12,7 +12,7 @@ test_that("OverallRiskSummaries works for gaussian", {
   q.fixed = 0.5, method = "exact"))
 })
 
-test_that("SingleVarRiskSummaries works for gaussian", {
+test_that("SingleVarRiskSummaries works for default", {
   set.seed(111)
   dat <- SimData(n = 50, M = 4)
   y <- dat$y
@@ -25,7 +25,7 @@ test_that("SingleVarRiskSummaries works for gaussian", {
   expect_no_error(risks.singvar <- SingVarRiskSummaries(fit = fitkm, method = "exact"))
 })
 
-test_that("SingleVarIntSummaries works for gaussian", {
+test_that("SingleVarIntSummaries works for default", {
   set.seed(111)
   dat <- SimData(n = 50, M = 4)
   y <- dat$y

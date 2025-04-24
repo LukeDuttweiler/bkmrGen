@@ -80,7 +80,7 @@ ystar.update.noh <- function(y, X, beta, Vinv, ystar) {
 #' calculation into one.
 #'
 #' @param r Augmented variables in kernel matrix
-#' @param lambda Variance component, tau*sigma^{-2}
+#' @param lambda Variance component, tau*sigma^\{-2\}
 #' @param lambda.star Proposal value for lambda
 #' @param r.star Proposal value for r
 #' @param delta Inclusion indicator for mixture component
@@ -92,7 +92,7 @@ ystar.update.noh <- function(y, X, beta, Vinv, ystar) {
 #' @param sigsq.eps Variance component sigma^2
 #' @param diffpriors Difference of priors for M-H calculation
 #' @param negdifflogproposal Negative difference of the log proposal distributions for MH
-#' @param Vcomps Components of V_{lambda, Z, r} matrix, calculated with \code{\link{makeVcomps}}
+#' @param Vcomps Components of V_\{lambda, Z, r\} matrix, calculated with \code{\link{makeVcomps}}
 #' @param move.type Type of move proposed for delta/r, not utilized, just passed through
 #' @param data.comps Info for interal VComps.star calculation
 #'
@@ -167,7 +167,7 @@ lambda.update <- function(r, delta, lambda, whichcomp=1, y, X, Z = Z, beta, sigs
 
 #' Adjust lambda proposal distribution to improve mixing
 #'
-#' This function chooses the mean of the proposal function for the lambda MH step based on the most recent iteration of lambda If this is the identity then E[lambda_star] = lambda_t. Otherwise we have E[lambda_star] = lamAdj(lambda_t).
+#' This function chooses the mean of the proposal function for the lambda MH step based on the most recent iteration of lambda If this is the identity then E(lambda_star) = lambda_t. Otherwise we have E(lambda_star) = lamAdj(lambda_t).
 #'
 #' @param lam Numeric scalar
 #'

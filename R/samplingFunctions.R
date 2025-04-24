@@ -2,9 +2,12 @@
 #'
 #' Code slightly modified from original bkmr package, Bobb 2015
 #'
+#' @param missingX Logical Flag to indicate if matrix X was provided to the function
+#' @param data.comps Components needed for V matrix
+#' @param ... Catches extra arguments
 #' @inheritParams kmbayes
 #'
-#' @return
+#' @return Samples from gaussian MCMC bkmr sampler.
 bkmr_mcmc_gaussian <- function(y,
                                Z,
                                X,
@@ -312,9 +315,12 @@ bkmr_mcmc_binomial <- function(link, ...){
 #'
 #' Code slightly modified from original bkmr package, Bobb 2015
 #'
+#' @param missingX Logical Flag to indicate if matrix X was provided to the function
+#' @param data.comps Components needed for V matrix
+#' @param ... Catches extra arguments
 #' @inheritParams kmbayes
 #'
-#' @return
+#' @return Samples from MCMC probit bkmr model
 bkmr_mcmc_probit <- function(y,
                              Z,
                              X,

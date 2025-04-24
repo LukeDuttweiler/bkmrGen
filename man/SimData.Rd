@@ -29,6 +29,8 @@ SimData(
 \item{Zgen}{Method for generating the matrix Z of exposure variables, taking one of the values c("unif", "norm", "corr", "realistic")}
 
 \item{ind}{select which predictor(s) will be included in the \code{h} function; how many predictors that can be included will depend on which \code{h} function is being used.}
+
+\item{family}{family object (see ?family for examples) with family and link information.}
 }
 \value{
 a list containing the parameter values and generated variables of the simulated datasets

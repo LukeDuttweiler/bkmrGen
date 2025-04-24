@@ -13,5 +13,5 @@ lamAdj(lam)
 Transformed numeric scalar
 }
 \description{
-This function chooses the mean of the proposal function for the lambda MH step based on the most recent iteration of lambda If this is the identity then E\link{lambda_star} = lambda_t. Otherwise we have E\link{lambda_star} = lamAdj(lambda_t).
+This function chooses the mean of the proposal function for the lambda MH step based on the most recent iteration of lambda If this is the identity then E(lambda_star) = lambda_t. Otherwise we have E(lambda_star) = lamAdj(lambda_t).
 }
