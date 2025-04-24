@@ -37,5 +37,8 @@ kmbayes(
 Main function to fit BKMR using MCMC methods and divide-and-conquer approaches with WASP
 }
 \details{
-TODO: MUCH more work on function, much more work on documentation
+TODO:
+Make sure output works with other bkmr functions
+Make sure all standard bkmr options still run
+Deep dive on logit and poisson sampling functions
 }

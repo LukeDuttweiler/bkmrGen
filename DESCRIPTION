@@ -22,7 +22,8 @@ Imports:
     ROI,
     ROI.plugin.lpsolve,
     rstan (>= 2.18.1),
-    rstantools (>= 2.4.0)
+    rstantools (>= 2.4.0),
+    tmvtnorm
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),

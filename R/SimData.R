@@ -80,7 +80,7 @@ SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
                                 0.13, 0.42, 1.27, 0.1, 0.11, 0.12, 0.14, 0.18, 0.13, 0.1, 0.25,
                                 0.1, 0.16, 0.08, 0.12, 0.1, 0.67), .Dim = c(13L, 13L))
     if (M > ncol(VarRealistic)) {
-      stop("Currently can only generate exposure data based on a realistic correlation structure with M = 13 or fewer. Please set M = 13 or use Zgen = c('unif','norm'")
+      stop("Currently can only generate exposure data based on a realistic correlation structure with M = 13 or fewer. Please set M = 13 or use Zgen = c('unif','norm')")
     } else if (M <= 13) {
       Sigma <- VarRealistic[1:M, 1:M]
     }

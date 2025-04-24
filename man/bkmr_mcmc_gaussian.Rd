@@ -23,6 +23,7 @@ bkmr_mcmc_gaussian(
   control.params,
   verbose,
   missingX,
+  data.comps,
   ...
 )
 }

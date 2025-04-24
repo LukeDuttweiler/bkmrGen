@@ -11,9 +11,19 @@ bkmr_mcmc_probit(
   starting.values,
   nchains,
   iter,
-  id,
   warmup,
+  id,
+  varsel,
+  Znew,
+  groups,
+  rmethod,
+  est.h,
+  knots,
+  ztest,
   control.params,
+  verbose,
+  missingX,
+  data.comps,
   ...
 )
 }

@@ -9,6 +9,7 @@ bkmr_mcmc_poisson(
   Z,
   X,
   starting.values = list(rho = 2),
+  control.params = list(),
   nchains = 1,
   iter = 1000,
   warmup = 50,

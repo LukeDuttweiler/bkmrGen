@@ -9,6 +9,7 @@ bkmr_mcmc_logit(
   Z,
   X,
   starting.values = list(rho = 2),
+  control.params,
   nchains = 1,
   iter = 1000,
   warmup = 50,
