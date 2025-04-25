@@ -28,10 +28,12 @@ Imports:
     rstan (>= 2.18.1),
     rstantools (>= 2.4.0),
     slam,
+    stats,
     tibble,
     tidyr,
     tmvtnorm,
-    truncnorm
+    truncnorm,
+    utils
 LinkingTo: 
     BH (>= 1.66.0),
     Rcpp (>= 0.12.0),
