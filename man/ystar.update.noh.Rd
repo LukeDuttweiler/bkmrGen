@@ -13,7 +13,7 @@ ystar.update.noh(y, X, beta, Vinv, ystar)
 
 \item{beta}{Current draw of Beta parameters}
 
-\item{Vinv}{Current value of V_{lambda, Z, r}}
+\item{Vinv}{Current value of V_\{lambda, Z, r\}}
 
 \item{ystar}{Current draws of ystar}
 }

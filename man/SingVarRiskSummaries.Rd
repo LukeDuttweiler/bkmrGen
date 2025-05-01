@@ -29,7 +29,7 @@ SingVarRiskSummaries(
 
 \item{which.z}{vector indicating which variables (columns of \code{Z}) for which the summary should be computed}
 
-\item{qs.diff}{vector indicating the two quantiles \code{q_1} and \code{q_2} at which to compute \code{h(z_{q2}) - h(z_{q1})}}
+\item{qs.diff}{vector indicating the two quantiles \code{q_1} and \code{q_2} at which to compute \code{h(z_\{q2\}) - h(z_\{q1\})}}
 
 \item{q.fixed}{vector of quantiles at which to fix the remaining predictors in \code{Z}}
 

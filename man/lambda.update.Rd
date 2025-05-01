@@ -24,7 +24,7 @@ lambda.update(
 
 \item{delta}{Inclusion parameters for mixture components}
 
-\item{lambda}{Current variance component, tau*sigma^{-2}}
+\item{lambda}{Current variance component, tau*sigma^\{-2\}}
 
 \item{whichcomp}{Which component of lambda to operate on (There can be multiple if random intercept model is being used)}
 
@@ -38,7 +38,7 @@ lambda.update(
 
 \item{sigsq.eps}{Variance component sigma^2}
 
-\item{Vcomps}{Components of V_{lambda, Z, r} matrix, calculated with \code{\link{makeVcomps}}}
+\item{Vcomps}{Components of V_\{lambda, Z, r\} matrix, calculated with \code{\link{makeVcomps}}}
 
 \item{data.comps}{Info for internal VComps.star calculation}
 

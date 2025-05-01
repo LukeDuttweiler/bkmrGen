@@ -3,12 +3,11 @@
 #' Main function to fit BKMR using MCMC methods and divide-and-conquer approaches with WASP
 #'
 #' TODO:
-#' Make sure output works with other bkmr functions
-#' Make sure all standard bkmr options still run
 #' Deep dive on logit and poisson sampling functions
 #' Update Traceplots and diagnostic stuff with genMCMCDiag
 #' Implement multi-chain for original bkmr stuff
 #' Implement warmup for original bkmr stuff
+#' Make sure we can input different starting params or control values successfully (Look at the Validate___ functions)
 #'
 #' @param y a vector of outcome data of length \code{n}.
 #' @param Z an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.
@@ -273,6 +272,12 @@ kmbayes <- function(y,
   #######################
   samples <- lapply(groupRuns, getElement, 'sampOutput')
 
+  #Correct names to match STAN outputs to bkmr standard
+  samples <- lapply(samples, function(kSet){
+    names(kSet) <- gsub('_', '.', names(kSet))
+    return(kSet)
+  })
+
   #######################
   #Reconstruct Posterior
   #######################
@@ -288,6 +293,7 @@ kmbayes <- function(y,
 
   #Get Lambda Posteriors
   lambdaSamps <- lapply(samples, getElement, 'lambda')
+  lambdaSamps <- lapply(lambdaSamps, as.matrix)
 
   lambdaPosts <- sapply(1:ncol(lambdaSamps[[1]]), function(i){
     sampI <- lapply(lambdaSamps, function(b){return(b[,i])})

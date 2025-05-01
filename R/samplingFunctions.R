@@ -647,7 +647,7 @@ bkmr_mcmc_probit <- function(y,
 bkmr_mcmc_logit <- function(y,
                             Z,
                             X,
-                            starting.values = list(rho = 2),
+                            starting.values = list(rho = 1),
                             control.params,
                             nchains = 1,
                             iter = 1000,
@@ -656,7 +656,7 @@ bkmr_mcmc_logit <- function(y,
   #####################
   #Set Starting Values
   #####################
-  starting.values.default <- list(rho = 2)
+  starting.values.default <- list(rho = 1)
   starting.values <- modifyList(starting.values.default, as.list(starting.values))
 
 
@@ -676,6 +676,14 @@ bkmr_mcmc_logit <- function(y,
   #Get MCMC Samples
   ###################
   samples <- rstan::extract(ft)
+
+  #################################
+  #Add Unused parameters to samples
+  #################################
+  samples$sigsq.eps <- rep(1, nchains*iter)
+  samples$delta <- matrix(1, nchains*iter, ncol(Z))
+  samples$r <- matrix(1, nchains*iter, ncol(Z))
+
   return(list(sampOutput = samples,
               starting.values = starting.values,
               control.params = control.params))

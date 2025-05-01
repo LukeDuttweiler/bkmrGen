@@ -14,20 +14,20 @@ transformed data {
 
 parameters {
   vector[d] beta;
-  real<lower=0> alpha;
-  vector[N] f_tilde;
+  real<lower=0> lambda;
+  vector[N] h_tilde;
 }
 
 transformed parameters {
-  matrix[N, N] cov = cov_exp_quad(Z, alpha, rho);
+  matrix[N, N] cov = cov_exp_quad(Z, lambda, rho);
   matrix[N, N] L_cov = cholesky_decompose(cov);
-  vector[N] f = L_cov * f_tilde;
-  vector[N] eta = f + X * beta;
+  vector[N] h_hat = L_cov * h_tilde;
+  vector[N] eta = h_hat + X * beta;
 }
 
 model {
-  alpha ~ gamma(3, 3);
+  lambda ~ gamma(3, 3);
   beta ~ normal(0, 10);
-  f_tilde ~ normal(0, 1);
+  h_tilde ~ normal(0, 1);
   y ~ bernoulli_logit(eta);
 }

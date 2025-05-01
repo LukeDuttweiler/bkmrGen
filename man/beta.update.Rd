@@ -9,7 +9,7 @@ beta.update(X, Vinv, y, sigsq.eps)
 \arguments{
 \item{X}{Covariate design matrix}
 
-\item{Vinv}{Inverse of V_{lambda, Z, r}, calculated with \code{\link{makeVcomps}}}
+\item{Vinv}{Inverse of V_\{lambda, Z, r\}, calculated with \code{\link{makeVcomps}}}
 
 \item{y}{Outcome vector}
 

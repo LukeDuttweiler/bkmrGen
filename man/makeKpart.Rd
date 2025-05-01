@@ -2,7 +2,7 @@
 % Please edit documentation in R/utility.R
 \name{makeKpart}
 \alias{makeKpart}
-\title{Make K_{Z,r} matrix (Exponential kernel)}
+\title{Make K_\{Z,r\} matrix (Exponential kernel)}
 \usage{
 makeKpart(r, Z1, Z2 = NULL)
 }
@@ -14,7 +14,7 @@ makeKpart(r, Z1, Z2 = NULL)
 \item{Z2}{New exposure design matrix (optional)}
 }
 \value{
-K_{Z,r} matrix
+K_\{Z,r\} matrix
 }
 \description{
 See Bobb et al. (2015), supplement page 3 for details.

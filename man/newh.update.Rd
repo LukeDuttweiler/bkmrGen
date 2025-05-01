@@ -11,9 +11,9 @@ newh.update(Z, Znew, Vcomps, lambda, sigsq.eps, r, y, X, beta, data.comps)
 
 \item{Znew}{Exposure design matrix for new subjects}
 
-\item{Vcomps}{Components of V_{lambda, Z, r} matrix, calculated with \code{\link{makeVcomps}}}
+\item{Vcomps}{Components of V_\{lambda, Z, r\} matrix, calculated with \code{\link{makeVcomps}}}
 
-\item{lambda}{Variance component, tau*sigma^{-2}}
+\item{lambda}{Variance component, tau*sigma^\{-2\}}
 
 \item{sigsq.eps}{Variance component sigma^2}
 

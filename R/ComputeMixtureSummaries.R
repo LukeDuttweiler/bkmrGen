@@ -107,7 +107,7 @@ VarRiskSummary <- function(whichz = 1, fit, y = NULL, Z = NULL, X = NULL, qs.dif
 #' @inheritParams ExtractEsts
 #' @inheritParams OverallRiskSummaries
 #' @inherit ComputePostmeanHnew details
-#' @param qs.diff vector indicating the two quantiles \code{q_1} and \code{q_2} at which to compute \code{h(z_{q2}) - h(z_{q1})}
+#' @param qs.diff vector indicating the two quantiles \code{q_1} and \code{q_2} at which to compute \code{h(z_\{q2\}) - h(z_\{q1\})}
 #' @param q.fixed vector of quantiles at which to fix the remaining predictors in \code{Z}
 #' @param z.names optional vector of names for the columns of \code{z}
 #' @param ... other arguments to pass on to the prediction function

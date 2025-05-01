@@ -13,7 +13,7 @@ sigsq.eps.update(y, X, beta, Vinv, a.eps = 0.001, b.eps = 0.001)
 
 \item{beta}{Current draw of Beta parameters}
 
-\item{Vinv}{Inverse of V_{lambda, Z, r}, calculated with \code{\link{makeVcomps}}}
+\item{Vinv}{Inverse of V_\{lambda, Z, r\}, calculated with \code{\link{makeVcomps}}}
 
 \item{a.eps}{Prior shape parameter for Gamma distribution}
 

@@ -3,7 +3,7 @@
 #' See Bobb et al. (2015) supplement, page 4 for details.
 #'
 #' @param X Covariate design matrix
-#' @param Vinv Inverse of V_{lambda, Z, r}, calculated with \code{\link{makeVcomps}}
+#' @param Vinv Inverse of V_\{lambda, Z, r\}, calculated with \code{\link{makeVcomps}}
 #' @param y Outcome vector
 #' @param sigsq.eps Sigma^2, variance component
 #'
@@ -24,7 +24,7 @@ beta.update <- function(X, Vinv, y, sigsq.eps) {
 #' @param y Outcome vector
 #' @param X Covariate design matrix
 #' @param beta Current draw of Beta parameters
-#' @param Vinv Inverse of V_{lambda, Z, r}, calculated with \code{\link{makeVcomps}}
+#' @param Vinv Inverse of V_\{lambda, Z, r\}, calculated with \code{\link{makeVcomps}}
 #' @param a.eps Prior shape parameter for Gamma distribution
 #' @param b.eps Prior rate parameter for Gamma distribution
 #'
@@ -60,7 +60,7 @@ ystar.update <- function(y, X, beta, h) {
 #' @param y Outcome vector
 #' @param X Covariate design matrix
 #' @param beta Current draw of Beta parameters
-#' @param Vinv Current value of V_{lambda, Z, r}
+#' @param Vinv Current value of V_\{lambda, Z, r\}
 #' @param ystar Current draws of ystar
 #'
 #' @importFrom tmvtnorm rtmvnorm
@@ -121,14 +121,14 @@ MHstep <- function(r, lambda, lambda.star, r.star, delta, delta.star, y, X, Z, b
 #'
 #' @param r Augmented variables in kernel matrix
 #' @param delta Inclusion parameters for mixture components
-#' @param lambda Current variance component, tau*sigma^{-2}
+#' @param lambda Current variance component, tau*sigma^\{-2\}
 #' @param whichcomp Which component of lambda to operate on (There can be multiple if random intercept model is being used)
 #' @param y Outcome vector
 #' @param X Covariate design matrix
 #' @param Z Exposure design matrix
 #' @param beta Covariate parameter vector
 #' @param sigsq.eps Variance component sigma^2
-#' @param Vcomps Components of V_{lambda, Z, r} matrix, calculated with \code{\link{makeVcomps}}
+#' @param Vcomps Components of V_\{lambda, Z, r\} matrix, calculated with \code{\link{makeVcomps}}
 #' @param data.comps Info for internal VComps.star calculation
 #' @param control.params Control parameter list from \code{\link{kmbayes}}, can adjust MH proposal variance or prior values
 #'
@@ -185,12 +185,12 @@ lamAdj <- function(lam){
 #' @param r Augmented variables in kernel matrix
 #' @param whichcomp Integer vector indicating which r values should be updated
 #' @param delta Inclusion parameter for mixture components
-#' @param lambda Variance component, tau*sigma^{-2}
+#' @param lambda Variance component, tau*sigma^\{-2\}
 #' @param y Outcome vector
 #' @param X Covariate design matrix
 #' @param beta Covariate parameter vector
 #' @param sigsq.eps Variance component sigma^2
-#' @param Vcomps Components of V_{lambda, Z, r} matrix, calculated with \code{\link{makeVcomps}}
+#' @param Vcomps Components of V_\{lambda, Z, r\} matrix, calculated with \code{\link{makeVcomps}}
 #' @param Z Exposure design matrix
 #' @param data.comps Info for internal VComps.star calculation
 #' @param control.params Control parameter list from \code{\link{kmbayes}}, can adjust MH proposal variance or prior values

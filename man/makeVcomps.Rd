@@ -2,21 +2,21 @@
 % Please edit documentation in R/utility.R
 \name{makeVcomps}
 \alias{makeVcomps}
-\title{Make necessary components from V_{lambda, Z, r}}
+\title{Make necessary components from V_\{lambda, Z, r\}}
 \usage{
 makeVcomps(r, lambda, Z, data.comps)
 }
 \arguments{
 \item{r}{Vector of augmented variables in kernel matrix controlling smoothness of h()}
 
-\item{lambda}{Variance parameter == tau*sigma^{-2}}
+\item{lambda}{Variance parameter == tau*sigma^\{-2\}}
 
 \item{Z}{Exposure design matrix}
 
 \item{data.comps}{List of control parameters to change behavior. Internally created by \code{\link{kmbayes}}}
 }
 \value{
-List containing V_{lambda, Z, r}^{-1} and log(determinant(V)) and additional values if selecting knots for kernel
+List containing V_\{lambda, Z, r\}^\{-1\} and log(determinant(V)) and additional values if selecting knots for kernel
 }
 \description{
 See Bobb et al. (2015), supplement page 4 for details.

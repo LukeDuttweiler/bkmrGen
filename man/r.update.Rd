@@ -30,7 +30,7 @@ r.update(
 
 \item{delta}{Inclusion parameter for mixture components}
 
-\item{lambda}{Variance component, tau*sigma^{-2}}
+\item{lambda}{Variance component, tau*sigma^\{-2\}}
 
 \item{y}{Outcome vector}
 
@@ -40,7 +40,7 @@ r.update(
 
 \item{sigsq.eps}{Variance component sigma^2}
 
-\item{Vcomps}{Components of V_{lambda, Z, r} matrix, calculated with \code{\link{makeVcomps}}}
+\item{Vcomps}{Components of V_\{lambda, Z, r\} matrix, calculated with \code{\link{makeVcomps}}}
 
 \item{Z}{Exposure design matrix}
 

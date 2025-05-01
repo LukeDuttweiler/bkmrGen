@@ -12,7 +12,7 @@ Matrix_to_slam <- function(Mat){
   return(Mat)
 }
 
-#' Make K_{Z,r} matrix (Exponential kernel)
+#' Make K_\{Z,r\} matrix (Exponential kernel)
 #'
 #' See Bobb et al. (2015), supplement page 3 for details.
 #'
@@ -20,7 +20,7 @@ Matrix_to_slam <- function(Mat){
 #' @param Z1 Exposure design matrix
 #' @param Z2 New exposure design matrix (optional)
 #'
-#' @return K_{Z,r} matrix
+#' @return K_\{Z,r\} matrix
 makeKpart <- function(r, Z1, Z2 = NULL) {
   Z1r <- t(t(Z1) * c(sqrt(r)))
   if (is.null(Z2)) {
@@ -33,16 +33,16 @@ makeKpart <- function(r, Z1, Z2 = NULL) {
 }
 
 
-#' Make necessary components from V_{lambda, Z, r}
+#' Make necessary components from V_\{lambda, Z, r\}
 #'
 #' See Bobb et al. (2015), supplement page 4 for details.
 #'
 #' @param r Vector of augmented variables in kernel matrix controlling smoothness of h()
-#' @param lambda Variance parameter == tau*sigma^{-2}
+#' @param lambda Variance parameter == tau*sigma^\{-2\}
 #' @param Z Exposure design matrix
 #' @param data.comps List of control parameters to change behavior. Internally created by \code{\link{kmbayes}}
 #'
-#' @return List containing V_{lambda, Z, r}^{-1} and log(determinant(V)) and additional values if selecting knots for kernel
+#' @return List containing V_\{lambda, Z, r\}^\{-1\} and log(determinant(V)) and additional values if selecting knots for kernel
 makeVcomps <- function(r, lambda, Z, data.comps) {
   if (is.null(data.comps$knots)) {
     Kpart <- makeKpart(r, Z)

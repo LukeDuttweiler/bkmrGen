@@ -7,9 +7,9 @@
 h.update(lambda, Vcomps, sigsq.eps, y, X, beta, r, Z, data.comps)
 }
 \arguments{
-\item{lambda}{Variance component, tau*sigma^{-2}}
+\item{lambda}{Variance component, tau*sigma^\{-2\}}
 
-\item{Vcomps}{Components of V_{lambda, Z, r} matrix, calculated with \code{\link{makeVcomps}}}
+\item{Vcomps}{Components of V_\{lambda, Z, r\} matrix, calculated with \code{\link{makeVcomps}}}
 
 \item{sigsq.eps}{Variance component sigma^2}
 
