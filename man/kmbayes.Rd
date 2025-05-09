@@ -10,7 +10,7 @@ kmbayes(
   X,
   K = 1,
   iter = 1000,
-  warmup = 0,
+  warmup = 100,
   nchains = 1,
   n_samps = iter,
   family = gaussian(),
@@ -39,7 +39,7 @@ kmbayes(
 
 \item{iter}{number of iterations to run the sampler}
 
-\item{warmup}{Number of iterations to discard as warmups. Defaults to 0}
+\item{warmup}{Number of iterations to discard as warmups. Defaults to 100}
 
 \item{nchains}{Number of MCMC or HMC chains to utilize. Defaults to 1.}
 
@@ -79,12 +79,11 @@ Main function to fit BKMR using MCMC methods and divide-and-conquer approaches w
 }
 \details{
 TODO:
-Make sure output works with other bkmr functions
-Make sure all standard bkmr options still run
 Deep dive on logit and poisson sampling functions
 Update Traceplots and diagnostic stuff with genMCMCDiag
 Implement multi-chain for original bkmr stuff
 Implement warmup for original bkmr stuff
+Make sure we can input different starting params or control values successfully (Look at the Validate___ functions)
 }
 \examples{
 ## First generate dataset

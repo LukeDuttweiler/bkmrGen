@@ -40,7 +40,7 @@ bkmr_mcmc_gaussian(
 
 \item{iter}{number of iterations to run the sampler}
 
-\item{warmup}{Number of iterations to discard as warmups. Defaults to 0}
+\item{warmup}{Number of iterations to discard as warmups. Defaults to 100}
 
 \item{id}{optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If NULL then no random intercept will be included.}
 

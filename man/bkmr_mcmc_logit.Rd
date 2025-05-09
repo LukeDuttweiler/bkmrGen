@@ -31,7 +31,7 @@ bkmr_mcmc_logit(
 
 \item{iter}{number of iterations to run the sampler}
 
-\item{warmup}{Number of iterations to discard as warmups. Defaults to 0}
+\item{warmup}{Number of iterations to discard as warmups. Defaults to 100}
 
 \item{...}{Catch all to allow package flexibility}
 }

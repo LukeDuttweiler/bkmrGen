@@ -670,7 +670,7 @@ bkmr_mcmc_logit <- function(y,
   ###################
   ft <- rstan::sampling(stanmodels$fit_logit, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
-                        chains = nchains, refresh = 0)
+                        chains = nchains, refresh = 1)
 
   ###################
   #Get MCMC Samples

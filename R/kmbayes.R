@@ -15,7 +15,7 @@
 #' @param K Number of splits to make in sample. Results are recombined using WASP.
 #' @param n_samps Total number of samples to return from WASP. Only required if K > 1. Defaults to iter.
 #' @param iter number of iterations to run the sampler
-#' @param warmup Number of iterations to discard as warmups. Defaults to 0
+#' @param warmup Number of iterations to discard as warmups. Defaults to 100
 #' @param nchains Number of MCMC or HMC chains to utilize. Defaults to 1.
 #' @param family family object (see ?family for examples) with family and link information.
 #' @param id optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If NULL then no random intercept will be included.
@@ -58,7 +58,7 @@ kmbayes <- function(y,
                     X,
                     K = 1,
                     iter = 1000,
-                    warmup = 0,
+                    warmup = 100,
                     nchains = 1,
                     n_samps = iter,
                     family = gaussian(),
@@ -339,6 +339,11 @@ kmbayes <- function(y,
     sampI <- lapply(hSamps, function(b){return(b[,i])})
     postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
     return(postI)
+  })
+
+  #Make sure samples is all matrices
+  samples <- lapply(samples, function(subst){
+    return(lapply(subst, as.matrix))
   })
 
 

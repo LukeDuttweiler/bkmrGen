@@ -26,7 +26,7 @@ transformed parameters {
 }
 
 model {
-  lambda ~ gamma(3, 3);
+  lambda ~ gamma(1, 0.1);
   beta ~ normal(0, 10);
   h_tilde ~ normal(0, 1);
   y ~ bernoulli_logit(eta);

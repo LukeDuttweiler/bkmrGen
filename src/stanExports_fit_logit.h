@@ -36,7 +36,7 @@ static constexpr std::array<const char*, 32> locations_array__ =
   " (in 'fit_logit', line 19, column 2 to column 47)",
   " (in 'fit_logit', line 20, column 2 to column 36)",
   " (in 'fit_logit', line 21, column 2 to column 35)",
-  " (in 'fit_logit', line 24, column 2 to column 23)",
+  " (in 'fit_logit', line 24, column 2 to column 25)",
   " (in 'fit_logit', line 25, column 2 to column 23)",
   " (in 'fit_logit', line 26, column 2 to column 25)",
   " (in 'fit_logit', line 27, column 2 to column 27)",
@@ -273,7 +273,7 @@ public:
         "assigning variable eta");
       {
         current_statement__ = 8;
-        lp_accum__.add(stan::math::gamma_lpdf<propto__>(lambda, 3, 3));
+        lp_accum__.add(stan::math::gamma_lpdf<propto__>(lambda, 1, 0.1));
         current_statement__ = 9;
         lp_accum__.add(stan::math::normal_lpdf<propto__>(beta, 0, 10));
         current_statement__ = 10;

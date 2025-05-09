@@ -30,14 +30,14 @@ stan::math::profile_map profiles__;
 static constexpr std::array<const char*, 34> locations_array__ =
   {" (found before start of program)",
   " (in 'fit_poisson', line 13, column 2 to column 17)",
-  " (in 'fit_poisson', line 14, column 2 to column 22)",
+  " (in 'fit_poisson', line 14, column 2 to column 23)",
   " (in 'fit_poisson', line 15, column 2 to column 20)",
-  " (in 'fit_poisson', line 18, column 2 to column 49)",
+  " (in 'fit_poisson', line 18, column 2 to column 50)",
   " (in 'fit_poisson', line 19, column 2 to column 47)",
-  " (in 'fit_poisson', line 20, column 2 to column 32)",
-  " (in 'fit_poisson', line 21, column 2 to column 31)",
+  " (in 'fit_poisson', line 20, column 2 to column 36)",
+  " (in 'fit_poisson', line 21, column 2 to column 35)",
   " (in 'fit_poisson', line 22, column 2 to column 35)",
-  " (in 'fit_poisson', line 25, column 2 to column 22)",
+  " (in 'fit_poisson', line 25, column 2 to column 24)",
   " (in 'fit_poisson', line 26, column 2 to column 23)",
   " (in 'fit_poisson', line 27, column 2 to column 25)",
   " (in 'fit_poisson', line 28, column 2 to column 18)",
@@ -195,7 +195,7 @@ public:
       current_statement__ = 25;
       stan::math::validate_non_negative_index("beta", "d", d);
       current_statement__ = 26;
-      stan::math::validate_non_negative_index("f_tilde", "N", N);
+      stan::math::validate_non_negative_index("h_tilde", "N", N);
       current_statement__ = 27;
       stan::math::validate_non_negative_index("cov", "N", N);
       current_statement__ = 28;
@@ -205,7 +205,7 @@ public:
       current_statement__ = 30;
       stan::math::validate_non_negative_index("L_cov", "N", N);
       current_statement__ = 31;
-      stan::math::validate_non_negative_index("f", "N", N);
+      stan::math::validate_non_negative_index("h_hat", "N", N);
       current_statement__ = 32;
       stan::math::validate_non_negative_index("eta", "N", N);
       current_statement__ = 33;
@@ -246,34 +246,34 @@ public:
         Eigen::Matrix<local_scalar_t__,-1,1>::Constant(d, DUMMY_VAR__);
       current_statement__ = 1;
       beta = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(d);
-      local_scalar_t__ alpha = DUMMY_VAR__;
+      local_scalar_t__ lambda = DUMMY_VAR__;
       current_statement__ = 2;
-      alpha = in__.template read_constrain_lb<local_scalar_t__,
-                jacobian__>(0, lp__);
-      Eigen::Matrix<local_scalar_t__,-1,1> f_tilde =
+      lambda = in__.template read_constrain_lb<local_scalar_t__,
+                 jacobian__>(0, lp__);
+      Eigen::Matrix<local_scalar_t__,-1,1> h_tilde =
         Eigen::Matrix<local_scalar_t__,-1,1>::Constant(N, DUMMY_VAR__);
       current_statement__ = 3;
-      f_tilde = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(N);
+      h_tilde = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(N);
       Eigen::Matrix<local_scalar_t__,-1,-1> cov =
         Eigen::Matrix<local_scalar_t__,-1,-1>::Constant(N, N, DUMMY_VAR__);
       current_statement__ = 4;
-      stan::model::assign(cov, stan::math::cov_exp_quad(Z, alpha, rho),
+      stan::model::assign(cov, stan::math::cov_exp_quad(Z, lambda, rho),
         "assigning variable cov");
       Eigen::Matrix<local_scalar_t__,-1,-1> L_cov =
         Eigen::Matrix<local_scalar_t__,-1,-1>::Constant(N, N, DUMMY_VAR__);
       current_statement__ = 5;
       stan::model::assign(L_cov, stan::math::cholesky_decompose(cov),
         "assigning variable L_cov");
-      Eigen::Matrix<local_scalar_t__,-1,1> f =
+      Eigen::Matrix<local_scalar_t__,-1,1> h_hat =
         Eigen::Matrix<local_scalar_t__,-1,1>::Constant(N, DUMMY_VAR__);
       current_statement__ = 6;
-      stan::model::assign(f, stan::math::multiply(L_cov, f_tilde),
-        "assigning variable f");
+      stan::model::assign(h_hat, stan::math::multiply(L_cov, h_tilde),
+        "assigning variable h_hat");
       Eigen::Matrix<local_scalar_t__,-1,1> eta =
         Eigen::Matrix<local_scalar_t__,-1,1>::Constant(N, DUMMY_VAR__);
       current_statement__ = 7;
       stan::model::assign(eta,
-        stan::math::add(f, stan::math::multiply(X, beta)),
+        stan::math::add(h_hat, stan::math::multiply(X, beta)),
         "assigning variable eta");
       Eigen::Matrix<local_scalar_t__,-1,1> mu =
         Eigen::Matrix<local_scalar_t__,-1,1>::Constant(N, DUMMY_VAR__);
@@ -283,11 +283,11 @@ public:
       stan::math::check_greater_or_equal(function__, "mu", mu, 0);
       {
         current_statement__ = 9;
-        lp_accum__.add(stan::math::gamma_lpdf<propto__>(alpha, 3, 3));
+        lp_accum__.add(stan::math::gamma_lpdf<propto__>(lambda, 1, .1));
         current_statement__ = 10;
         lp_accum__.add(stan::math::normal_lpdf<propto__>(beta, 0, 10));
         current_statement__ = 11;
-        lp_accum__.add(stan::math::normal_lpdf<propto__>(f_tilde, 0, 1));
+        lp_accum__.add(stan::math::normal_lpdf<propto__>(h_tilde, 0, 1));
         current_statement__ = 12;
         lp_accum__.add(stan::math::poisson_lpmf<propto__>(y, mu));
       }
@@ -333,22 +333,22 @@ public:
           std::numeric_limits<double>::quiet_NaN());
       current_statement__ = 1;
       beta = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(d);
-      double alpha = std::numeric_limits<double>::quiet_NaN();
+      double lambda = std::numeric_limits<double>::quiet_NaN();
       current_statement__ = 2;
-      alpha = in__.template read_constrain_lb<local_scalar_t__,
-                jacobian__>(0, lp__);
-      Eigen::Matrix<double,-1,1> f_tilde =
+      lambda = in__.template read_constrain_lb<local_scalar_t__,
+                 jacobian__>(0, lp__);
+      Eigen::Matrix<double,-1,1> h_tilde =
         Eigen::Matrix<double,-1,1>::Constant(N,
           std::numeric_limits<double>::quiet_NaN());
       current_statement__ = 3;
-      f_tilde = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(N);
+      h_tilde = in__.template read<Eigen::Matrix<local_scalar_t__,-1,1>>(N);
       Eigen::Matrix<double,-1,-1> cov =
         Eigen::Matrix<double,-1,-1>::Constant(N, N,
           std::numeric_limits<double>::quiet_NaN());
       Eigen::Matrix<double,-1,-1> L_cov =
         Eigen::Matrix<double,-1,-1>::Constant(N, N,
           std::numeric_limits<double>::quiet_NaN());
-      Eigen::Matrix<double,-1,1> f =
+      Eigen::Matrix<double,-1,1> h_hat =
         Eigen::Matrix<double,-1,1>::Constant(N,
           std::numeric_limits<double>::quiet_NaN());
       Eigen::Matrix<double,-1,1> eta =
@@ -358,25 +358,25 @@ public:
         Eigen::Matrix<double,-1,1>::Constant(N,
           std::numeric_limits<double>::quiet_NaN());
       out__.write(beta);
-      out__.write(alpha);
-      out__.write(f_tilde);
+      out__.write(lambda);
+      out__.write(h_tilde);
       if (stan::math::logical_negation(
             (stan::math::primitive_value(emit_transformed_parameters__) ||
             stan::math::primitive_value(emit_generated_quantities__)))) {
         return ;
       }
       current_statement__ = 4;
-      stan::model::assign(cov, stan::math::cov_exp_quad(Z, alpha, rho),
+      stan::model::assign(cov, stan::math::cov_exp_quad(Z, lambda, rho),
         "assigning variable cov");
       current_statement__ = 5;
       stan::model::assign(L_cov, stan::math::cholesky_decompose(cov),
         "assigning variable L_cov");
       current_statement__ = 6;
-      stan::model::assign(f, stan::math::multiply(L_cov, f_tilde),
-        "assigning variable f");
+      stan::model::assign(h_hat, stan::math::multiply(L_cov, h_tilde),
+        "assigning variable h_hat");
       current_statement__ = 7;
       stan::model::assign(eta,
-        stan::math::add(f, stan::math::multiply(X, beta)),
+        stan::math::add(h_hat, stan::math::multiply(X, beta)),
         "assigning variable eta");
       current_statement__ = 8;
       stan::model::assign(mu, stan::math::exp(eta), "assigning variable mu");
@@ -385,7 +385,7 @@ public:
       if (emit_transformed_parameters__) {
         out__.write(cov);
         out__.write(L_cov);
-        out__.write(f);
+        out__.write(h_hat);
         out__.write(eta);
         out__.write(mu);
       }
@@ -419,17 +419,17 @@ public:
         in__.read<Eigen::Matrix<local_scalar_t__,-1,1>>(d),
         "assigning variable beta");
       out__.write(beta);
-      local_scalar_t__ alpha = DUMMY_VAR__;
+      local_scalar_t__ lambda = DUMMY_VAR__;
       current_statement__ = 2;
-      alpha = in__.read<local_scalar_t__>();
-      out__.write_free_lb(0, alpha);
-      Eigen::Matrix<local_scalar_t__,-1,1> f_tilde =
+      lambda = in__.read<local_scalar_t__>();
+      out__.write_free_lb(0, lambda);
+      Eigen::Matrix<local_scalar_t__,-1,1> h_tilde =
         Eigen::Matrix<local_scalar_t__,-1,1>::Constant(N, DUMMY_VAR__);
       current_statement__ = 3;
-      stan::model::assign(f_tilde,
+      stan::model::assign(h_tilde,
         in__.read<Eigen::Matrix<local_scalar_t__,-1,1>>(N),
-        "assigning variable f_tilde");
-      out__.write(f_tilde);
+        "assigning variable h_tilde");
+      out__.write(h_tilde);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
@@ -449,10 +449,10 @@ public:
       context__.validate_dims("parameter initialization", "beta", "double",
         std::vector<size_t>{static_cast<size_t>(d)});
       current_statement__ = 2;
-      context__.validate_dims("parameter initialization", "alpha", "double",
+      context__.validate_dims("parameter initialization", "lambda", "double",
         std::vector<size_t>{});
       current_statement__ = 3;
-      context__.validate_dims("parameter initialization", "f_tilde",
+      context__.validate_dims("parameter initialization", "h_tilde",
         "double", std::vector<size_t>{static_cast<size_t>(N)});
       int pos__ = std::numeric_limits<int>::min();
       pos__ = 1;
@@ -474,28 +474,28 @@ public:
         }
       }
       out__.write(beta);
-      local_scalar_t__ alpha = DUMMY_VAR__;
+      local_scalar_t__ lambda = DUMMY_VAR__;
       current_statement__ = 2;
-      alpha = context__.vals_r("alpha")[(1 - 1)];
-      out__.write_free_lb(0, alpha);
-      Eigen::Matrix<local_scalar_t__,-1,1> f_tilde =
+      lambda = context__.vals_r("lambda")[(1 - 1)];
+      out__.write_free_lb(0, lambda);
+      Eigen::Matrix<local_scalar_t__,-1,1> h_tilde =
         Eigen::Matrix<local_scalar_t__,-1,1>::Constant(N, DUMMY_VAR__);
       {
-        std::vector<local_scalar_t__> f_tilde_flat__;
+        std::vector<local_scalar_t__> h_tilde_flat__;
         current_statement__ = 3;
-        f_tilde_flat__ = context__.vals_r("f_tilde");
+        h_tilde_flat__ = context__.vals_r("h_tilde");
         current_statement__ = 3;
         pos__ = 1;
         current_statement__ = 3;
         for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
           current_statement__ = 3;
-          stan::model::assign(f_tilde, f_tilde_flat__[(pos__ - 1)],
-            "assigning variable f_tilde", stan::model::index_uni(sym1__));
+          stan::model::assign(h_tilde, h_tilde_flat__[(pos__ - 1)],
+            "assigning variable h_tilde", stan::model::index_uni(sym1__));
           current_statement__ = 3;
           pos__ = (pos__ + 1);
         }
       }
-      out__.write(f_tilde);
+      out__.write(h_tilde);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
     }
@@ -504,9 +504,9 @@ public:
   get_param_names(std::vector<std::string>& names__, const bool
                   emit_transformed_parameters__ = true, const bool
                   emit_generated_quantities__ = true) const {
-    names__ = std::vector<std::string>{"beta", "alpha", "f_tilde"};
+    names__ = std::vector<std::string>{"beta", "lambda", "h_tilde"};
     if (emit_transformed_parameters__) {
-      std::vector<std::string> temp{"cov", "L_cov", "f", "eta", "mu"};
+      std::vector<std::string> temp{"cov", "L_cov", "h_hat", "eta", "mu"};
       names__.reserve(names__.size() + temp.size());
       names__.insert(names__.end(), temp.begin(), temp.end());
     }
@@ -542,9 +542,9 @@ public:
       param_names__.emplace_back(std::string() + "beta" + '.' +
         std::to_string(sym1__));
     }
-    param_names__.emplace_back(std::string() + "alpha");
+    param_names__.emplace_back(std::string() + "lambda");
     for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
-      param_names__.emplace_back(std::string() + "f_tilde" + '.' +
+      param_names__.emplace_back(std::string() + "h_tilde" + '.' +
         std::to_string(sym1__));
     }
     if (emit_transformed_parameters__) {
@@ -561,7 +561,7 @@ public:
         }
       }
       for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
-        param_names__.emplace_back(std::string() + "f" + '.' +
+        param_names__.emplace_back(std::string() + "h_hat" + '.' +
           std::to_string(sym1__));
       }
       for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
@@ -583,9 +583,9 @@ public:
       param_names__.emplace_back(std::string() + "beta" + '.' +
         std::to_string(sym1__));
     }
-    param_names__.emplace_back(std::string() + "alpha");
+    param_names__.emplace_back(std::string() + "lambda");
     for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
-      param_names__.emplace_back(std::string() + "f_tilde" + '.' +
+      param_names__.emplace_back(std::string() + "h_tilde" + '.' +
         std::to_string(sym1__));
     }
     if (emit_transformed_parameters__) {
@@ -602,7 +602,7 @@ public:
         }
       }
       for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
-        param_names__.emplace_back(std::string() + "f" + '.' +
+        param_names__.emplace_back(std::string() + "h_hat" + '.' +
           std::to_string(sym1__));
       }
       for (int sym1__ = 1; sym1__ <= N; ++sym1__) {
@@ -617,10 +617,10 @@ public:
     if (emit_generated_quantities__) {}
   }
   inline std::string get_constrained_sizedtypes() const {
-    return std::string("[{\"name\":\"beta\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(d) + "},\"block\":\"parameters\"},{\"name\":\"alpha\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"f_tilde\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"parameters\"},{\"name\":\"cov\",\"type\":{\"name\":\"matrix\",\"rows\":" + std::to_string(N) + ",\"cols\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"L_cov\",\"type\":{\"name\":\"matrix\",\"rows\":" + std::to_string(N) + ",\"cols\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"f\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"eta\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"mu\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"}]");
+    return std::string("[{\"name\":\"beta\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(d) + "},\"block\":\"parameters\"},{\"name\":\"lambda\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"h_tilde\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"parameters\"},{\"name\":\"cov\",\"type\":{\"name\":\"matrix\",\"rows\":" + std::to_string(N) + ",\"cols\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"L_cov\",\"type\":{\"name\":\"matrix\",\"rows\":" + std::to_string(N) + ",\"cols\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"h_hat\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"eta\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"mu\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"}]");
   }
   inline std::string get_unconstrained_sizedtypes() const {
-    return std::string("[{\"name\":\"beta\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(d) + "},\"block\":\"parameters\"},{\"name\":\"alpha\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"f_tilde\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"parameters\"},{\"name\":\"cov\",\"type\":{\"name\":\"matrix\",\"rows\":" + std::to_string(N) + ",\"cols\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"L_cov\",\"type\":{\"name\":\"matrix\",\"rows\":" + std::to_string(N) + ",\"cols\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"f\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"eta\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"mu\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"}]");
+    return std::string("[{\"name\":\"beta\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(d) + "},\"block\":\"parameters\"},{\"name\":\"lambda\",\"type\":{\"name\":\"real\"},\"block\":\"parameters\"},{\"name\":\"h_tilde\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"parameters\"},{\"name\":\"cov\",\"type\":{\"name\":\"matrix\",\"rows\":" + std::to_string(N) + ",\"cols\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"L_cov\",\"type\":{\"name\":\"matrix\",\"rows\":" + std::to_string(N) + ",\"cols\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"h_hat\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"eta\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"},{\"name\":\"mu\",\"type\":{\"name\":\"vector\",\"length\":" + std::to_string(N) + "},\"block\":\"transformed_parameters\"}]");
   }
   // Begin method overload boilerplate
   template <typename RNG> inline void
