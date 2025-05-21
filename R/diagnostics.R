@@ -29,7 +29,7 @@ TracePlot <- function(bkmrFit,
 
 
   #Ensure par is an actual option
-  if(!(par %in% c('beta', 'lambda', 'sigsq.eps', 'h.hat', 'r', 'delta'))){
+  if(!(par %in% c('beta', 'lambda', 'sigsq.eps', 'h.hat', 'r', 'delta', 'rho'))){
     stop("par must be one of 'beta', 'lambda', 'sigsq.eps', 'h.hat', 'r', or 'delta'")
   }
 
@@ -57,9 +57,9 @@ TracePlot <- function(bkmrFit,
       return(as.list(as.data.frame(t(ch))))
     })
 
-    tp <- genDiagnostic(samps, diagnostic = 'traceplot',
-                        proximityMap = 'lanfear', distance = eucDist,
-                        reference = 0)
+    tp <- genMCMCDiag::genDiagnostic(samps, diagnostic = 'traceplot',
+                                     proximityMap = 'lanfear', distance = genMCMCDiag::eucDist,
+                                     reference = 0)
   }
 
   return(tp)

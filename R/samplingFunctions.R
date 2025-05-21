@@ -689,6 +689,60 @@ bkmr_mcmc_logit <- function(y,
               control.params = control.params))
 }
 
+#' BKMR Sampling on Logit Model using Hamiltonian Monte Carlo with Component-wise Variable Selection
+#'
+#' Fits bkmr_logit model using STAN. See file inst/stan/fit_logit_comp.stan for STAN specifications.
+#'
+#' @inheritParams kmbayes
+#'
+#' @param ... Catch all to allow package flexibility
+#'
+#' @return STAN output from bkmr_logit_comp fit
+bkmr_mcmc_logit_comp <- function(y,
+                            Z,
+                            X,
+                            starting.values,
+                            control.params,
+                            nchains = 1,
+                            iter = 1000,
+                            warmup = 50,
+                            ...){
+  #####################
+  #Set Starting Values
+  #####################
+  starting.values.default <- list()
+  starting.values <- modifyList(starting.values.default, as.list(starting.values))
+
+  ###################
+  #Format for STAN
+  ###################
+  stanDat <- prepForStan(y, Z, X, starting.values)
+
+  ###################
+  #Run STAN
+  ###################
+  ft <- rstan::sampling(stanmodels$fit_logit_comp, data = stanDat,
+                        iter = iter + warmup, warmup = warmup,
+                        chains = nchains, refresh = 1)
+  assign('ft', ft, envir = .GlobalEnv)
+
+  ###################
+  #Get MCMC Samples
+  ###################
+  samples <- rstan::extract(ft)
+
+  #################################
+  #Add Unused parameters to samples
+  #################################
+  samples$sigsq.eps <- rep(1, nchains*iter)
+  #samples$delta <- matrix(1, nchains*iter, ncol(Z))
+  #samples$r <- matrix(1, nchains*iter, ncol(Z))
+
+  return(list(sampOutput = samples,
+              starting.values = starting.values,
+              control.params = control.params))
+}
+
 #' BKMR Sampling on Poisson Model using Hamiltonian Monte Carlo
 #'
 #' Fits bkmr_poisson model using STAN. See file inst/stan/fit_poisson.stan for STAN specifications.

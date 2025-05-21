@@ -210,6 +210,10 @@ kmbayes <- function(y,
     if (!all(y %in% c(0, 1))) {
       stop("When family == 'binomial', y must be a vector containing only zeros and ones")
     }
+
+    if(link == 'logit' & varsel){#for a logit link, specify if using variable selection
+      link <- 'logit_comp'
+    }
   }
 
   #Poisson options
