@@ -16,6 +16,7 @@
 #' When multiple components are requested, the samples are reshaped into the format expected by \code{genDiagnostic()}.
 #'
 #' @examples
+#' @export
 #' \dontrun{
 #' fit <- kmbayes(...)  # assuming the fit has been run
 #' TracePlot(fit, par = "beta", comp = 'all')         # Trace plot for all beta coefficiens
