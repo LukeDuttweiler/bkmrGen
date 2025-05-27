@@ -675,11 +675,11 @@ bkmr_mcmc_logit <- function(y,
   ###################
   #Get MCMC Samples
   ###################
-  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'h_hat'))
-  samples <- lapply(c('beta', 'lambda', 'h_hat'), function(nm){
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar'))
+  samples <- lapply(c('beta', 'lambda', 'ystar'), function(nm){
     return(sExt[,grepl(nm, dimnames(sExt)$parameters)])
   })
-  names(samples) <- c('beta', 'lambda', 'h_hat')
+  names(samples) <- c('beta', 'lambda', 'ystar')
 
   #################################
   #Add Unused parameters to samples
@@ -728,19 +728,20 @@ bkmr_mcmc_logit_comp <- function(y,
   ft <- rstan::sampling(stanmodels$fit_logit_comp, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
                         chains = nchains, refresh = 1)
-  assign('ft', ft, envir = .GlobalEnv)
 
   ###################
   #Get MCMC Samples
   ###################
-  samples <- rstan::extract(ft)
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'h_hat', 'delta', 'r', 'rho'))
+  samples <- lapply(c('beta', 'lambda', 'h_hat', 'delta', 'r', 'rho'), function(nm){
+    return(sExt[,grepl(nm, dimnames(sExt)$parameters)])
+  })
+  names(samples) <- c('beta', 'lambda', 'h_hat', 'delta', 'r', 'rho')
 
   #################################
   #Add Unused parameters to samples
   #################################
   samples$sigsq.eps <- rep(1, nchains*iter)
-  #samples$delta <- matrix(1, nchains*iter, ncol(Z))
-  #samples$r <- matrix(1, nchains*iter, ncol(Z))
 
   return(list(sampOutput = samples,
               starting.values = starting.values,

@@ -335,15 +335,18 @@ kmbayes <- function(y,
     return(postI)
   })
 
-  #Get h Posteriors
-  hSamps <- lapply(samples, getElement, 'h.hat')
-  hSamps <- lapply(hSamps, as.matrix)
+  #Get ystar Posteriors
+  if(family != 'gaussian'){
+    ystarSamps <- lapply(samples, getElement, 'ystar')
+    ystarSamps <- lapply(ystarSamps, as.matrix)
+    ystar <- do.call('cbind', ystarSamps)
+  }else{
+    ystar <- matrix(y, nrow = 1)
+  }
 
-  hPosts <- sapply(1:ncol(hSamps[[1]]), function(i){
-    sampI <- lapply(hSamps, function(b){return(b[,i])})
-    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
-    return(postI)
-  })
+  #Get h Posteriors
+  #hSamps <- lapply(samples, getElement, 'h.hat')
+  #hSamps <- lapply(hSamps, as.matrix)
 
   #Make sure samples is all matrices
   samples <- lapply(samples, function(subst){
@@ -354,7 +357,8 @@ kmbayes <- function(y,
   ###################
   #Format Return
   ###################
-  ret <- list('h.hat' = hPosts,
+  ret <- list(#'h.hat' = hPosts,
+              'ystar' = ystar,
               'beta' = betaPosts,
               'lambda' = lambdaPosts,
               'sigsq.eps' = sigsqPosts,
