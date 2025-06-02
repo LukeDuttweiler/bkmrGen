@@ -32,7 +32,7 @@ static constexpr std::array<const char*, 24> locations_array__ =
   " (in 'fit_logit', line 13, column 2 to column 17)",
   " (in 'fit_logit', line 14, column 2 to column 23)",
   " (in 'fit_logit', line 15, column 2 to column 20)",
-  " (in 'fit_logit', line 23, column 2 to column 88)",
+  " (in 'fit_logit', line 23, column 2 to column 123)",
   " (in 'fit_logit', line 26, column 2 to column 25)",
   " (in 'fit_logit', line 27, column 2 to column 23)",
   " (in 'fit_logit', line 28, column 2 to column 25)",
@@ -239,8 +239,10 @@ public:
         stan::math::add(
           stan::math::multiply(
             stan::math::cholesky_decompose(
-              stan::math::cov_exp_quad(Z, lambda, rho)), h_tilde),
-          stan::math::multiply(X, beta)), "assigning variable ystar");
+              stan::math::add(stan::math::cov_exp_quad(Z, lambda, rho),
+                stan::math::diag_matrix(stan::math::rep_vector(1e-6, N)))),
+            h_tilde), stan::math::multiply(X, beta)),
+        "assigning variable ystar");
       {
         current_statement__ = 5;
         lp_accum__.add(stan::math::gamma_lpdf<propto__>(lambda, 1, 0.1));
@@ -318,8 +320,10 @@ public:
         stan::math::add(
           stan::math::multiply(
             stan::math::cholesky_decompose(
-              stan::math::cov_exp_quad(Z, lambda, rho)), h_tilde),
-          stan::math::multiply(X, beta)), "assigning variable ystar");
+              stan::math::add(stan::math::cov_exp_quad(Z, lambda, rho),
+                stan::math::diag_matrix(stan::math::rep_vector(1e-6, N)))),
+            h_tilde), stan::math::multiply(X, beta)),
+        "assigning variable ystar");
       if (emit_transformed_parameters__) {
         out__.write(ystar);
       }

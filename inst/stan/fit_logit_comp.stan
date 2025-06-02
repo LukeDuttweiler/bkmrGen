@@ -36,9 +36,9 @@ transformed data {
 parameters {
   vector[d] beta;
   real<lower=0> lambda;
-  vector[N] h_tilde;
   real<lower=0,upper=1> delta[p];
   row_vector<lower=.01>[p] rho;
+  vector[N] h_tilde;
 }
 
 transformed parameters {
@@ -46,10 +46,14 @@ transformed parameters {
   for(i in 1:p){
     r[i] = 1/rho[i];
   }
-  matrix[N, N] cov = cov_exp_quad_aug(Z, lambda, r) + diag_matrix(rep_vector(1e-6, N));
-  matrix[N, N] L_cov = cholesky_decompose(cov);
-  vector[N] h_hat = L_cov * h_tilde;
-  vector[N] eta = h_hat + X * beta;
+
+  //matrix[N, N] cov = cov_exp_quad_aug(Z, lambda, r) + diag_matrix(rep_vector(1e-6, N));
+  //matrix[N, N] L_cov = cholesky_decompose(cov);
+  //vector[N] h_hat = L_cov * h_tilde;
+  //vector[N] eta = h_hat + X * beta;
+  //ystar = eta, calculated in one line to avoid saving all the extra junk
+
+  vector[N] ystar = cholesky_decompose(cov_exp_quad_aug(Z, lambda, r) + diag_matrix(rep_vector(1e-6, N))) * h_tilde + X * beta;
 }
 
 model {
@@ -66,5 +70,5 @@ model {
   lambda ~ gamma(1, 0.1);
   beta ~ normal(0, 100);
   h_tilde ~ normal(0, 1);
-  y ~ bernoulli_logit(eta);
+  y ~ bernoulli_logit(ystar);
 }

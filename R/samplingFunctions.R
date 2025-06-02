@@ -732,11 +732,11 @@ bkmr_mcmc_logit_comp <- function(y,
   ###################
   #Get MCMC Samples
   ###################
-  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'h_hat', 'delta', 'r', 'rho'))
-  samples <- lapply(c('beta', 'lambda', 'h_hat', 'delta', 'r', 'rho'), function(nm){
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho'))
+  samples <- lapply(c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho'), function(nm){
     return(sExt[,grepl(nm, dimnames(sExt)$parameters)])
   })
-  names(samples) <- c('beta', 'lambda', 'h_hat', 'delta', 'r', 'rho')
+  names(samples) <- c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho')
 
   #################################
   #Add Unused parameters to samples
