@@ -748,6 +748,21 @@ bkmr_mcmc_logit_comp <- function(y,
               control.params = control.params))
 }
 
+#' Redirect Poisson family using specified link function (default will be 'log')
+#'
+#' @param link character vector giving link function name. Currently implemented for 'log'
+#' @param ... All arguments passed through to sampler function
+#'
+#' @return Output from sampler function
+bkmr_mcmc_poisson <- function(link, ...){
+  #Redirect based on link function
+  samplerLink <- eval(parse(text = paste0('bkmr_mcmc_poisson_', link)))
+
+  return(samplerLink(...))
+}
+
+
+
 #' BKMR Sampling on Poisson Model using Hamiltonian Monte Carlo
 #'
 #' Fits bkmr_poisson model using STAN. See file inst/stan/fit_poisson.stan for STAN specifications.
@@ -757,7 +772,7 @@ bkmr_mcmc_logit_comp <- function(y,
 #' @param ... Catch all to allow package flexibility
 #'
 #' @return STAN output from bkmr_poisson fit
-bkmr_mcmc_poisson <- function(y,
+bkmr_mcmc_poisson_log <- function(y,
                               Z,
                               X,
                               starting.values = list(rho = 2),
@@ -782,12 +797,79 @@ bkmr_mcmc_poisson <- function(y,
   ###################
   ft <- rstan::sampling(stanmodels$fit_poisson, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
-                        chains = nchains, refresh = 0)
+                        chains = nchains, refresh = 1)
 
   ###################
   #Get MCMC Samples
   ###################
-  samples <- rstan::extract(ft)
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar'))
+  samples <- lapply(c('beta', 'lambda', 'ystar'), function(nm){
+    return(sExt[,grepl(nm, dimnames(sExt)$parameters)])
+  })
+  names(samples) <- c('beta', 'lambda', 'ystar')
+
+  #################################
+  #Add Unused parameters to samples
+  #################################
+  samples$sigsq.eps <- rep(1, nchains*iter)
+  samples$delta <- matrix(1, nchains*iter, ncol(Z))
+  samples$r <- matrix(1, nchains*iter, ncol(Z))
+
+  return(list(sampOutput = samples,
+              starting.values = starting.values,
+              control.params = control.params))
+}
+
+#' BKMR Sampling on Poisson Model using Hamiltonian Monte Carlo with Component-wise Variable Selection
+#'
+#' Fits bkmr_poisson model using STAN. See file inst/stan/fit_poisson_comp.stan for STAN specifications.
+#'
+#' @inheritParams kmbayes
+#'
+#' @param ... Catch all to allow package flexibility
+#'
+#' @return STAN output from bkmr_poisson_comp fit
+bkmr_mcmc_poisson_log_comp <- function(y,
+                                 Z,
+                                 X,
+                                 starting.values,
+                                 control.params,
+                                 nchains = 1,
+                                 iter = 1000,
+                                 warmup = 50,
+                                 ...){
+  #####################
+  #Set Starting Values
+  #####################
+  starting.values.default <- list()
+  starting.values <- modifyList(starting.values.default, as.list(starting.values))
+
+  ###################
+  #Format for STAN
+  ###################
+  stanDat <- prepForStan(y, Z, X, starting.values)
+
+  ###################
+  #Run STAN
+  ###################
+  ft <- rstan::sampling(stanmodels$fit_poisson_comp, data = stanDat,
+                        iter = iter + warmup, warmup = warmup,
+                        chains = nchains, refresh = 1)
+
+  ###################
+  #Get MCMC Samples
+  ###################
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho'))
+  samples <- lapply(c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho'), function(nm){
+    return(sExt[,grepl(nm, dimnames(sExt)$parameters)])
+  })
+  names(samples) <- c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho')
+
+  #################################
+  #Add Unused parameters to samples
+  #################################
+  samples$sigsq.eps <- rep(1, nchains*iter)
+
   return(list(sampOutput = samples,
               starting.values = starting.values,
               control.params = control.params))

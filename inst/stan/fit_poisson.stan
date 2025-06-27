@@ -19,16 +19,18 @@ parameters {
 }
 
 transformed parameters {
-  matrix[N, N] cov = cov_exp_quad(Z, lambda, rho);
-  matrix[N, N] L_cov = cholesky_decompose(cov);
-  vector[N] h_hat = L_cov * h_tilde;
-  vector[N] eta = h_hat + X * beta;
-  vector<lower=0>[N] mu = exp(eta);
+  //matrix[N, N] cov = cov_exp_quad(Z, lambda, rho);
+  //matrix[N, N] L_cov = cholesky_decompose(cov);
+  //vector[N] h_hat = L_cov * h_tilde;
+  //vector[N] eta = h_hat + X * beta;
+  //vector<lower=0>[N] mu = exp(eta);
+
+  vector[N] ystar = cholesky_decompose(cov_exp_quad(Z, lambda, rho) + diag_matrix(rep_vector(1e-6, N)))*h_tilde + X * beta;
 }
 
 model {
   lambda ~ gamma(1, .1);
-  beta ~ normal(0, 10);
+  beta ~ normal(0, 100);
   h_tilde ~ normal(0, 1);
-  y ~ poisson(mu);
+  y ~ poisson(exp(ystar));
 }

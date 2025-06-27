@@ -174,8 +174,11 @@ kmbayes <- function(y,
   ######################################
   #FAMILY CHECKS AND WARNINGS
   ######################################
-
   #Unpack options from family if given a function
+  if('function' %in% class(family)){
+    family <- family()
+  }
+
   if('family' %in% class(family)){
     link <- family$link
     family <- family$family
@@ -228,6 +231,10 @@ kmbayes <- function(y,
 
     if (!is.integer(y) | any(y < 0)) {
       stop("When family == 'poisson', y must be a vector containing only non-negative integers")
+    }
+
+    if(varsel){#for a poisson family, specify if using variable selection
+      link <- 'log_comp'
     }
   }
 
