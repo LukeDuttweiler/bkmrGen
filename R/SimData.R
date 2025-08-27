@@ -31,9 +31,17 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #'
 SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
                     beta.true = 2, hfun = 3, Zgen = "norm", ind = 1:2, family = gaussian()) {
+  link <- family$link
+  linkinv <- family$linkinv
   family <- family$family
 
-  stopifnot(n > 0, M > 0, sigsq.true >= 0, family %in% c("gaussian", "binomial"))
+  stopifnot(n > 0, M > 0, sigsq.true >= 0, family %in% c("gaussian", "binomial", 'poisson'),
+            link %in% c('identity', 'logit', 'probit', 'log'))
+
+  #Different defaults for other families
+  if(family == 'poisson'){
+    beta.true <- .1
+  }
 
   if (family == "binomial") {
     sigsq.true <- 1
@@ -89,19 +97,27 @@ SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
   colnames(Z) <- paste0("z", 1:M)
 
   X <- cbind(3*cos(Z[, 1]) + 2*rnorm(n))
-  eps <- rnorm(n, sd = sqrt(sigsq.true))
+  #eps <- rnorm(n, sd = sqrt(sigsq.true))
   h <- apply(Z, 1, HFun)
-  mu <- X * beta.true + h
-  y <- drop(mu + eps)
+  eta <- X * beta.true + h
+  mu <- linkinv(eta)
 
-  if (family == "binomial") {
-    ystar <- y
-    y <- ifelse(ystar > 0, 1, 0)
+  if(family == 'gaussian'){
+    y <- rnorm(n, mean = mu, sd = sqrt(sigsq.true))
+  }else if(family == 'binomial'){
+    y <- rbinom(n, 1, mu)
+  }else if(family == 'poisson'){
+    y <- rpois(n, mu)
   }
 
-  dat <- list(n = n, M = M, sigsq.true = sigsq.true, beta.true = beta.true, Z = Z, h = h, X = X, y = y, hfun = hfun, HFun = HFun, family = family)
-  if (family == "binomial") {
-    dat$ystar <- ystar
-  }
+  #if (family == "binomial") {
+  #  ystar <- y
+  #  y <- ifelse(ystar > 0, 1, 0)
+  #}
+
+  dat <- list(n = n, M = M, sigsq.true = sigsq.true, beta.true = beta.true, Z = Z, h = h, X = X, y = y, hfun = hfun, HFun = HFun, family = family, link = link)
+  #if (family == "binomial") {
+  #  dat$ystar <- ystar
+  #}
   dat
 }

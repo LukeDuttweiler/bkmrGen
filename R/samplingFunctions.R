@@ -652,6 +652,7 @@ bkmr_mcmc_logit <- function(y,
                             nchains = 1,
                             iter = 1000,
                             warmup = 50,
+                            verbose,
                             ...){
   #####################
   #Set Starting Values
@@ -659,6 +660,14 @@ bkmr_mcmc_logit <- function(y,
   starting.values.default <- list(rho = 1)
   starting.values <- modifyList(starting.values.default, as.list(starting.values))
 
+  #####################
+  #Control Verbosity
+  #####################
+  if(verbose){
+    rf <- 1
+  }else{
+    rf <- 0
+  }
 
   ###################
   #Format for STAN
@@ -670,16 +679,16 @@ bkmr_mcmc_logit <- function(y,
   ###################
   ft <- rstan::sampling(stanmodels$fit_logit, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
-                        chains = nchains, refresh = 1)
+                        chains = nchains, refresh = rf)
 
   ###################
   #Get MCMC Samples
   ###################
-  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar'))
-  samples <- lapply(c('beta', 'lambda', 'ystar'), function(nm){
-    return(sExt[,grepl(nm, dimnames(sExt)$parameters)])
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'h_hat'))
+  samples <- lapply(c('beta', 'lambda', 'ystar', 'h_hat'), function(nm){
+    return(sExt[,grepl(nm, dimnames(sExt)$parameters), drop = F])
   })
-  names(samples) <- c('beta', 'lambda', 'ystar')
+  names(samples) <- c('beta', 'lambda', 'ystar', 'h.hat')
 
   #################################
   #Add Unused parameters to samples
@@ -710,12 +719,22 @@ bkmr_mcmc_logit_comp <- function(y,
                             nchains = 1,
                             iter = 1000,
                             warmup = 50,
+                            verbose,
                             ...){
   #####################
   #Set Starting Values
   #####################
   starting.values.default <- list()
   starting.values <- modifyList(starting.values.default, as.list(starting.values))
+
+  #####################
+  #Control Verbosity
+  #####################
+  if(verbose){
+    rf <- 1
+  }else{
+    rf <- 0
+  }
 
   ###################
   #Format for STAN
@@ -727,16 +746,16 @@ bkmr_mcmc_logit_comp <- function(y,
   ###################
   ft <- rstan::sampling(stanmodels$fit_logit_comp, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
-                        chains = nchains, refresh = 1)
+                        chains = nchains, refresh = rf)
 
   ###################
   #Get MCMC Samples
   ###################
-  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho'))
-  samples <- lapply(c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho'), function(nm){
-    return(sExt[,grepl(nm, dimnames(sExt)$parameters)])
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h_hat'))
+  samples <- lapply(c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h_hat'), function(nm){
+    return(sExt[,grepl(nm, dimnames(sExt)$parameters), drop = F])
   })
-  names(samples) <- c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho')
+  names(samples) <- c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h.hat')
 
   #################################
   #Add Unused parameters to samples
@@ -780,12 +799,22 @@ bkmr_mcmc_poisson_log <- function(y,
                               nchains = 1,
                               iter = 1000,
                               warmup = 50,
+                              verbose,
                               ...){
   #####################
   #Set Starting Values
   #####################
   starting.values.default <- list(rho = 2)
   starting.values <- modifyList(starting.values.default, as.list(starting.values))
+
+  #####################
+  #Control Verbosity
+  #####################
+  if(verbose){
+    rf <- 1
+  }else{
+    rf <- 0
+  }
 
   ###################
   #Format for STAN
@@ -797,16 +826,16 @@ bkmr_mcmc_poisson_log <- function(y,
   ###################
   ft <- rstan::sampling(stanmodels$fit_poisson, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
-                        chains = nchains, refresh = 1)
+                        chains = nchains, refresh = rf)
 
   ###################
   #Get MCMC Samples
   ###################
-  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar'))
-  samples <- lapply(c('beta', 'lambda', 'ystar'), function(nm){
-    return(sExt[,grepl(nm, dimnames(sExt)$parameters)])
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'h_hat'))
+  samples <- lapply(c('beta', 'lambda', 'ystar', 'h_hat'), function(nm){
+    return(sExt[,grepl(nm, dimnames(sExt)$parameters), drop = F])
   })
-  names(samples) <- c('beta', 'lambda', 'ystar')
+  names(samples) <- c('beta', 'lambda', 'ystar', 'h.hat')
 
   #################################
   #Add Unused parameters to samples
@@ -837,12 +866,22 @@ bkmr_mcmc_poisson_log_comp <- function(y,
                                  nchains = 1,
                                  iter = 1000,
                                  warmup = 50,
+                                 verbose,
                                  ...){
   #####################
   #Set Starting Values
   #####################
   starting.values.default <- list()
   starting.values <- modifyList(starting.values.default, as.list(starting.values))
+
+  #####################
+  #Control Verbosity
+  #####################
+  if(verbose){
+    rf <- 1
+  }else{
+    rf <- 0
+  }
 
   ###################
   #Format for STAN
@@ -854,16 +893,16 @@ bkmr_mcmc_poisson_log_comp <- function(y,
   ###################
   ft <- rstan::sampling(stanmodels$fit_poisson_comp, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
-                        chains = nchains, refresh = 1)
+                        chains = nchains, refresh = rf)
 
   ###################
   #Get MCMC Samples
   ###################
-  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho'))
-  samples <- lapply(c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho'), function(nm){
-    return(sExt[,grepl(nm, dimnames(sExt)$parameters)])
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h_hat'))
+  samples <- lapply(c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h_hat'), function(nm){
+    return(sExt[,grepl(nm, dimnames(sExt)$parameters), drop = F])
   })
-  names(samples) <- c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho')
+  names(samples) <- c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h.hat')
 
   #################################
   #Add Unused parameters to samples

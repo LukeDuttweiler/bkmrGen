@@ -92,8 +92,8 @@ ComputePostmeanHnew.approx <- function(fit, y = NULL, Z = NULL, X = NULL, Znew =
     Kmat10 <- Kmat[(n0+1):nall,1:n0 ,drop=FALSE]
 
     lamK10Vinv <- lambda[1]*Kmat10 %*% Vinv
-    print(dim(ycont))
-    print(dim(ycont - X%*%beta))
+    #print(dim(ycont))
+    #print(dim(ycont - X%*%beta))
     postvar <- lambda[1]*sigsq.eps*(Kmat1 - lamK10Vinv %*% t(Kmat10))
     postmean <- lamK10Vinv %*% (ycont - X%*%beta)
     # } else {

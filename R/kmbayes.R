@@ -348,12 +348,13 @@ kmbayes <- function(y,
     ystarSamps <- lapply(ystarSamps, as.matrix)
     ystar <- do.call('cbind', ystarSamps)
   }else{
-    ystar <- matrix(y, nrow = 1)
+    ystar <- matrix(rep(y, iter), nrow = iter, byrow = TRUE)
   }
 
   #Get h Posteriors
-  #hSamps <- lapply(samples, getElement, 'h.hat')
-  #hSamps <- lapply(hSamps, as.matrix)
+  hSamps <- lapply(samples, getElement, 'h.hat')
+  hSamps <- lapply(hSamps, as.matrix)
+  hSamps <- do.call('rbind', hSamps)
 
   #Make sure samples is all matrices
   samples <- lapply(samples, function(subst){
@@ -364,7 +365,7 @@ kmbayes <- function(y,
   ###################
   #Format Return
   ###################
-  ret <- list(#'h.hat' = hPosts,
+  ret <- list('h.hat' = hSamps,
               'ystar' = ystar,
               'beta' = betaPosts,
               'lambda' = lambdaPosts,

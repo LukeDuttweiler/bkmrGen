@@ -24,8 +24,9 @@ transformed parameters {
   //vector[N] h_hat = L_cov * h_tilde;
   //vector[N] eta = h_hat + X * beta;
   //vector<lower=0>[N] mu = exp(eta);
+  vector[N] h_hat = cholesky_decompose(cov_exp_quad(Z, lambda, rho) + diag_matrix(rep_vector(1e-6, N)))*h_tilde;
 
-  vector[N] ystar = cholesky_decompose(cov_exp_quad(Z, lambda, rho) + diag_matrix(rep_vector(1e-6, N)))*h_tilde + X * beta;
+  vector[N] ystar = h_hat + X * beta;
 }
 
 model {
