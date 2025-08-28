@@ -32,7 +32,7 @@ When multiple components are requested, the samples are reshaped into the format
 \dontrun{
 fit <- kmbayes(...)  # assuming the fit has been run
 TracePlot(fit, par = "beta", comp = 'all')         # Trace plot for all beta coefficiens
-TracePlot(fit, par = "lambda", comp = 1)   # Trace plots for all lambda components
+TracePlot(fit, par = "lambda", comp = 1)   # Trace plots for first lambda component
 }
 
 }

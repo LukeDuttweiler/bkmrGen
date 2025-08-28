@@ -4,31 +4,28 @@
 #'
 #' TODO:
 #' Deep dive on logit and poisson sampling functions
-#' Update Traceplots and diagnostic stuff with genMCMCDiag
-#' Implement multi-chain for original bkmr stuff
-#' Implement warmup for original bkmr stuff
 #' Make sure we can input different starting params or control values successfully (Look at the Validate___ functions)
 #'
-#' @param y a vector of outcome data of length \code{n}.
-#' @param Z an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.
-#' @param X an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.
+#' @param y a vector of outcome data of length  n.
+#' @param Z an n-by-M matrix of predictor variables to be included in the h function. Each row represents an observation and each column represents an predictor.
+#' @param X an n-by-K matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.
 #' @param K Number of splits to make in sample. Results are recombined using WASP.
 #' @param n_samps Total number of samples to return from WASP. Only required if K > 1. Defaults to iter.
 #' @param iter number of iterations to run the sampler
 #' @param warmup Number of iterations to discard as warmups. Defaults to 100
 #' @param nchains Number of MCMC or HMC chains to utilize. Defaults to 1.
 #' @param family family object (see ?family for examples) with family and link information.
-#' @param id optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If NULL then no random intercept will be included.
+#' @param id optional vector (of length n) of grouping factors for fitting a model with a random intercept. If NULL then no random intercept will be included.
 #' @param verbose TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting.
-#' @param Znew optional matrix of new predictor values at which to predict \code{h}, where each row represents a new observation. This will slow down the model fitting, and can be done as a post-processing step using \code{\link{SamplePred}}
-#' @param starting.values list of starting values for each parameter. If not specified default values will be chosen.
-#' @param control.params list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.
-#' @param varsel TRUE or FALSE: indicator for whether to conduct variable selection on the Z variables in \code{h}
-#' @param groups optional vector (of length \code{M}) of group indicators for fitting hierarchical variable selection if varsel=TRUE. If varsel=TRUE without group specification, component-wise variable selections will be performed.
+#' @param Znew optional matrix of new predictor values at which to predict h, where each row represents a new observation. This will slow down the model fitting, and can be done as a post-processing step using SamplePred
+#' @param starting.values list of starting values for each parameter. If not specified default values will be chosen. (Only can change if family = gaussian() or binomial(link = 'logit'))
+#' @param control.params list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen. (Only can change if family = gaussian() or binomial(link = 'logit'))
+#' @param varsel TRUE or FALSE: indicator for whether to conduct variable selection on the Z variables in h
+#' @param groups optional vector (of length M) of group indicators for fitting hierarchical variable selection if varsel=TRUE. If varsel=TRUE without group specification, component-wise variable selections will be performed.
 #' @param knots optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al. (2008). Currently only implemented for models without a random intercept.
 #' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
-#' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
-#' @param est.h TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler. This will slow down the model fitting.
+#' @param rmethod for those predictors being forced into the h function, the method for sampling the r(m) values. Takes the value of 'varying' to allow separate r(m) for each predictor; 'equal' to force the same r(m) for each predictor; or 'fixed' to fix the r(m) to their starting values
+#' @param est.h TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler. This will slow down the model fitting. Only relevant if family = gaussian() or binomial(link = 'logit')
 #' @param WASPSolver Linear-program solver to use. Solvers available are provided by the R package ROI (see ?ROI for details).
 #'
 #' @return an object of class "bkmrfit" (containing the posterior samples from the model fit), which has the associated methods: print, summary
@@ -343,13 +340,9 @@ kmbayes <- function(y,
   })
 
   #Get ystar Posteriors
-  if(family != 'gaussian'){
-    ystarSamps <- lapply(samples, getElement, 'ystar')
-    ystarSamps <- lapply(ystarSamps, as.matrix)
-    ystar <- do.call('cbind', ystarSamps)
-  }else{
-    ystar <- matrix(rep(y, iter), nrow = iter, byrow = TRUE)
-  }
+  ystarSamps <- lapply(samples, getElement, 'ystar')
+  ystarSamps <- lapply(ystarSamps, as.matrix)
+  ystar <- do.call('cbind', ystarSamps)
 
   #Get h Posteriors
   hSamps <- lapply(samples, getElement, 'h.hat')

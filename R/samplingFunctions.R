@@ -1,4 +1,42 @@
-#' MCMC code to fit Gaussian BKMR Model
+#' Wrapper for bkmr_mcmc_gaussian_oneChain
+#'
+#' Wrapper for bkmr_mcmc_gaussian_oneChain to allow for multiple chains to be run (sequentially, not in parallel)
+#'
+#' @param ... Arguments passed through to bkmr_mcmc_gaussian_oneChain()
+#' @inheritParams kmbayes
+#'
+#' @return Samples from gaussian MCMC bkmr sampler
+bkmr_mcmc_gaussian <- function(nchains, warmup, iter, ...){
+  #Run multiple times
+  chs <- lapply(1:nchains, function(i){
+    #Run for iterations plus warmup, will remove warmup later
+    bkmr_mcmc_gaussian_oneChain(iter = iter + warmup, ...)
+  })
+
+  #Extract
+  smps <- lapply(chs, getElement, 'sampOutput')
+  sv <- chs[[1]]$starting.values
+  cp <- chs[[1]]$control.params
+
+  #Combine chains as expected for output (in the same way rstan does)
+  #Removing warmup
+  nms <- names(smps[[1]])
+  combSamps <- lapply(nms, function(nm){
+    cmb <- lapply(smps, getElement, nm)
+    cmb <- lapply(cmb, function(mt){
+      return(mt[-(1:warmup),,drop = F])
+    })
+    cmb <- do.call('rbind', cmb)
+    return(cmb)
+  })
+  names(combSamps) <- nms
+
+  return(list(sampOutput = combSamps,
+              starting.values = sv,
+              control.params = cp))
+}
+
+#' MCMC code to fit one chain of Gaussian BKMR Model
 #'
 #' Code slightly modified from original bkmr package, Bobb 2015
 #'
@@ -8,13 +46,11 @@
 #' @inheritParams kmbayes
 #'
 #' @return Samples from gaussian MCMC bkmr sampler.
-bkmr_mcmc_gaussian <- function(y,
+bkmr_mcmc_gaussian_oneChain <- function(y,
                                Z,
                                X,
                                starting.values,
-                               nchains,
                                iter,
-                               warmup,
                                id,
                                varsel,
                                Znew,
@@ -288,10 +324,16 @@ bkmr_mcmc_gaussian <- function(y,
   #Remove r.params from control.params for later functions
   control.params$r.params <- NULL
 
-  #Put data into chain return (so subsets are easily identified)
-  chain$y <- y
-  chain$X <- X
-  chain$Z <- Z
+  #Make sure sigsq.eps is correct dimensions
+  chain$sigsq.eps <- matrix(chain$sigsq.eps, ncol = 1)
+
+  #Make sure expected information is returned in chain
+  chain$est.h <- NULL
+  chain$ystar <- matrix(rep(y, iter), nrow = iter, byrow = TRUE)
+  if(varsel){
+    chain$acc.rdelta <- matrix(chain$acc.rdelta, ncol = 1)
+    chain$move.type <- matrix(chain$move.type, ncol = 1)
+  }
 
   return(list(sampOutput = chain,
               starting.values = starting.values,
@@ -311,6 +353,44 @@ bkmr_mcmc_binomial <- function(link, ...){
   return(samplerLink(...))
 }
 
+#' Multi-chain wrapper for bkmr_mcmc_probit_oneChain
+#'
+#' Wrapper for bkmr_mcmc_probit_oneChain to allow for multiple chains to be run (sequentially, not in parallel)
+#'
+#' @param ... Arguments passed through to bkmr_mcmc_probit_oneChain()
+#' @inheritParams kmbayes
+#'
+#' @return Samples from probit MCMC bkmr sampler
+bkmr_mcmc_probit <- function(nchains, warmup, iter, ...){
+  #Run multiple times
+  chs <- lapply(1:nchains, function(i){
+    #Run for iterations plus warmup, will remove warmup later
+    bkmr_mcmc_probit_oneChain(iter = iter + warmup, ...)
+  })
+
+  #Extract
+  smps <- lapply(chs, getElement, 'sampOutput')
+  sv <- chs[[1]]$starting.values
+  cp <- chs[[1]]$control.params
+
+  #Combine chains as expected for output (in the same way rstan does)
+  #Removing warmup
+  nms <- names(smps[[1]])
+  combSamps <- lapply(nms, function(nm){
+    cmb <- lapply(smps, getElement, nm)
+    cmb <- lapply(cmb, function(mt){
+      return(mt[-(1:warmup),,drop = F])
+    })
+    cmb <- do.call('rbind', cmb)
+    return(cmb)
+  })
+  names(combSamps) <- nms
+
+  return(list(sampOutput = combSamps,
+              starting.values = sv,
+              control.params = cp))
+}
+
 #' MCMC code to fit Probit BKMR Model
 #'
 #' Code slightly modified from original bkmr package, Bobb 2015
@@ -321,13 +401,11 @@ bkmr_mcmc_binomial <- function(link, ...){
 #' @inheritParams kmbayes
 #'
 #' @return Samples from MCMC probit bkmr model
-bkmr_mcmc_probit <- function(y,
+bkmr_mcmc_probit_oneChain <- function(y,
                              Z,
                              X,
                              starting.values,
-                             nchains,
                              iter,
-                             warmup,
                              id,
                              varsel,
                              Znew,
@@ -625,10 +703,13 @@ bkmr_mcmc_probit <- function(y,
   #Remove r.params from control.params for later functions
   control.params$r.params <- NULL
 
-  #Put data into chain return (so subsets are easily identified)
-  chain$y <- y
-  chain$X <- X
-  chain$Z <- Z
+  #Make sure expected information is returned in chain
+  chain$sigsq.eps <- matrix(chain$sigsq.eps, ncol = 1)
+  chain$est.h <- NULL
+  if(varsel){
+    chain$acc.rdelta <- matrix(chain$acc.rdelta, ncol = 1)
+    chain$move.type <- matrix(chain$move.type, ncol = 1)
+  }
 
   return(list(sampOutput = chain,
               starting.values = starting.values,

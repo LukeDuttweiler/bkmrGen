@@ -2,42 +2,18 @@
 % Please edit documentation in R/samplingFunctions.R
 \name{bkmr_mcmc_poisson}
 \alias{bkmr_mcmc_poisson}
-\title{BKMR Sampling on Poisson Model using Hamiltonian Monte Carlo}
+\title{Redirect Poisson family using specified link function (default will be 'log')}
 \usage{
-bkmr_mcmc_poisson(
-  y,
-  Z,
-  X,
-  starting.values = list(rho = 2),
-  control.params = list(),
-  nchains = 1,
-  iter = 1000,
-  warmup = 50,
-  ...
-)
+bkmr_mcmc_poisson(link, ...)
 }
 \arguments{
-\item{y}{a vector of outcome data of length \code{n}.}
+\item{link}{character vector giving link function name. Currently implemented for 'log'}
 
-\item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
-
-\item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
-
-\item{starting.values}{list of starting values for each parameter. If not specified default values will be chosen.}
-
-\item{control.params}{list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen.}
-
-\item{nchains}{Number of MCMC or HMC chains to utilize. Defaults to 1.}
-
-\item{iter}{number of iterations to run the sampler}
-
-\item{warmup}{Number of iterations to discard as warmups. Defaults to 100}
-
-\item{...}{Catch all to allow package flexibility}
+\item{...}{All arguments passed through to sampler function}
 }
 \value{
-STAN output from bkmr_poisson fit
+Output from sampler function
 }
 \description{
-Fits bkmr_poisson model using STAN. See file inst/stan/fit_poisson.stan for STAN specifications.
+Redirect Poisson family using specified link function (default will be 'log')
 }

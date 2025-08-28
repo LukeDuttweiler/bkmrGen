@@ -2,7 +2,7 @@
 % Please edit documentation in R/ComputePostMeanHnew.R
 \name{ComputePostmeanHnew}
 \alias{ComputePostmeanHnew}
-\title{Compute the posterior mean and variance of \code{h} at a new predictor values}
+\title{Compute the posterior mean and variance of h at a new predictor values}
 \usage{
 ComputePostmeanHnew(
   fit,
@@ -15,15 +15,15 @@ ComputePostmeanHnew(
 )
 }
 \arguments{
-\item{fit}{An object containing the results returned by a the \code{kmbayes} function}
+\item{fit}{An object containing the results returned by a the kmbayes function}
 
-\item{y}{a vector of outcome data of length \code{n}.}
+\item{y}{a vector of outcome data of length  n.}
 
-\item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
+\item{Z}{an n-by-M matrix of predictor variables to be included in the h function. Each row represents an observation and each column represents an predictor.}
 
-\item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
+\item{X}{an n-by-K matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
-\item{Znew}{matrix of new predictor values at which to predict new \code{h}, where each row represents a new observation. If set to NULL then will default to using the observed exposures Z.}
+\item{Znew}{matrix of new predictor values at which to predict new h, where each row represents a new observation. If set to NULL then will default to using the observed exposures Z.}
 
 \item{sel}{selects which iterations of the MCMC sampler to use for inference; see details}
 
@@ -33,7 +33,7 @@ ComputePostmeanHnew(
 a list of length two containing the posterior mean vector and posterior variance matrix
 }
 \description{
-Compute the posterior mean and variance of \code{h} at a new predictor values
+Compute the posterior mean and variance of h at a new predictor values
 }
 \details{
 \itemize{
