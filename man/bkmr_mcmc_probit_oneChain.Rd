@@ -26,27 +26,27 @@ bkmr_mcmc_probit_oneChain(
 )
 }
 \arguments{
-\item{y}{a vector of outcome data of length  n.}
+\item{y}{a vector of outcome data of length \code{n}.}
 
-\item{Z}{an n-by-M matrix of predictor variables to be included in the h function. Each row represents an observation and each column represents an predictor.}
+\item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
 
-\item{X}{an n-by-K matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
+\item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
 \item{starting.values}{list of starting values for each parameter. If not specified default values will be chosen. (Only can change if family = gaussian() or binomial(link = 'logit'))}
 
 \item{iter}{number of iterations to run the sampler}
 
-\item{id}{optional vector (of length n) of grouping factors for fitting a model with a random intercept. If NULL then no random intercept will be included.}
+\item{id}{optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If NULL then no random intercept will be included.}
 
-\item{varsel}{TRUE or FALSE: indicator for whether to conduct variable selection on the Z variables in h}
+\item{varsel}{TRUE or FALSE: indicator for whether to conduct variable selection on the Z variables in \code{h}}
 
-\item{Znew}{optional matrix of new predictor values at which to predict h, where each row represents a new observation. This will slow down the model fitting, and can be done as a post-processing step using SamplePred}
+\item{Znew}{optional matrix of new predictor values at which to predict \code{h}, where each row represents a new observation. This will slow down the model fitting, and can be done as a post-processing step using \code{\link{SamplePred}}}
 
-\item{groups}{optional vector (of length M) of group indicators for fitting hierarchical variable selection if varsel=TRUE. If varsel=TRUE without group specification, component-wise variable selections will be performed.}
+\item{groups}{optional vector (of length \code{M}) of group indicators for fitting hierarchical variable selection if varsel=TRUE. If varsel=TRUE without group specification, component-wise variable selections will be performed.}
 
-\item{rmethod}{for those predictors being forced into the h function, the method for sampling the r\link{m} values. Takes the value of 'varying' to allow separate r\link{m} for each predictor; 'equal' to force the same r\link{m} for each predictor; or 'fixed' to fix the r\link{m} to their starting values}
+\item{rmethod}{for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values}
 
-\item{est.h}{TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler. This will slow down the model fitting. Only relevant if family = gaussian() or binomial(link = 'logit')}
+\item{est.h}{TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler. This will slow down the model fitting. (Only relevant if family = gaussian() or binomial(link = 'logit'))}
 
 \item{knots}{optional matrix of knot locations for implementing the Gaussian predictive process of Banerjee et al. (2008). Currently only implemented for models without a random intercept.}
 

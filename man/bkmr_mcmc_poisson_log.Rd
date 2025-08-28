@@ -18,11 +18,11 @@ bkmr_mcmc_poisson_log(
 )
 }
 \arguments{
-\item{y}{a vector of outcome data of length  n.}
+\item{y}{a vector of outcome data of length \code{n}.}
 
-\item{Z}{an n-by-M matrix of predictor variables to be included in the h function. Each row represents an observation and each column represents an predictor.}
+\item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
 
-\item{X}{an n-by-K matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
+\item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
 \item{starting.values}{list of starting values for each parameter. If not specified default values will be chosen. (Only can change if family = gaussian() or binomial(link = 'logit'))}
 

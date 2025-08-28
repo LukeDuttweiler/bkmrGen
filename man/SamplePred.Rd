@@ -23,11 +23,11 @@ SamplePred(
 
 \item{Xnew}{optional matrix of new covariate values at which to obtain predictions. If not specified, defaults to using observed X values}
 
-\item{Z}{an n-by-M matrix of predictor variables to be included in the h function. Each row represents an observation and each column represents an predictor.}
+\item{Z}{an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.}
 
-\item{X}{an n-by-K matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
+\item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
-\item{y}{a vector of outcome data of length  n.}
+\item{y}{a vector of outcome data of length \code{n}.}
 
 \item{sel}{A vector selecting which iterations of the BKMR fit should be retained for inference. If not specified, will default to keeping every 10 iterations after dropping the first 50\% of samples, or if this results in fewer than 100 iterations, than 100 iterations are kept}
 
