@@ -9,6 +9,7 @@ kmbayes(
   Z,
   X,
   K = 1,
+  kParallel = FALSE,
   iter = 1000,
   warmup = 100,
   nchains = 1,
@@ -36,6 +37,8 @@ kmbayes(
 \item{X}{an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.}
 
 \item{K}{Number of splits to make in sample. Results are recombined using WASP.}
+
+\item{kParallel}{Logical. If TRUE (not default), runs sampler on splits in parallel.}
 
 \item{iter}{number of iterations to run the sampler}
 
@@ -76,11 +79,6 @@ an object of class "bkmrfit" (containing the posterior samples from the model fi
 }
 \description{
 Main function to fit BKMR using MCMC methods and divide-and-conquer approaches with WASP
-}
-\details{
-TODO:
-Deep dive on logit and poisson sampling functions
-Make sure we can input different starting params or control values successfully (Look at the Validate___ functions)
 }
 \examples{
 ## First generate dataset

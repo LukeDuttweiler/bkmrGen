@@ -2,14 +2,11 @@
 #'
 #' Main function to fit BKMR using MCMC methods and divide-and-conquer approaches with WASP
 #'
-#' TODO:
-#' Deep dive on logit and poisson sampling functions
-#' Make sure we can input different starting params or control values successfully (Look at the Validate___ functions)
-#'
 #' @param y a vector of outcome data of length \code{n}.
 #' @param Z an \code{n}-by-\code{M} matrix of predictor variables to be included in the \code{h} function. Each row represents an observation and each column represents an predictor.
 #' @param X an \code{n}-by-\code{K} matrix of covariate data where each row represents an observation and each column represents a covariate. Should not contain an intercept column.
 #' @param K Number of splits to make in sample. Results are recombined using WASP.
+#' @param kParallel Logical. If TRUE (not default), runs sampler on splits in parallel.
 #' @param n_samps Total number of samples to return from WASP. Only required if K > 1. Defaults to iter.
 #' @param iter number of iterations to run the sampler
 #' @param warmup Number of iterations to discard as warmups. Defaults to 100
@@ -56,6 +53,7 @@ kmbayes <- function(y,
                     Z,
                     X,
                     K = 1,
+                    kParallel = FALSE,
                     iter = 1000,
                     warmup = 100,
                     nchains = 1,
@@ -257,19 +255,39 @@ kmbayes <- function(y,
   #MCMC Sampling
   ###################
   #Use family name to specify sampler
-  sampler <- eval(parse(text = paste0('bkmr_mcmc_', family)))
+  sampler <- eval(parse(text = paste0('bkmrGen:::bkmr_mcmc_', family)))
 
-  groupRuns <- lapply(1:K, function(k){
-    #Prepare arguments for sampler (per group)
-    sampCall <- argg
-    sampCall$y <- y[groupIdx == k]
-    sampCall$Z <- Z[groupIdx == k,, drop = F]
-    sampCall$X <- X[groupIdx == k,, drop = F]
-    sampCall$link <- link
-    sampCall$missingX <- missingX
+  if(kParallel){# Run Ks in parallel
+    numCores <- parallel::detectCores() - 1 #All cores - 1
 
-    return(do.call(sampler, sampCall))
-  })
+    future::plan(future::multisession,workers = numCores)
+
+    groupRuns <- future.apply::future_lapply(1:K, function(k){
+      #Prepare arguments for sampler (per group)
+      sampCall <- argg
+      sampCall$y <- y[groupIdx == k]
+      sampCall$Z <- Z[groupIdx == k,, drop = F]
+      sampCall$X <- X[groupIdx == k,, drop = F]
+      sampCall$link <- link
+      sampCall$missingX <- missingX
+
+      return(do.call(sampler, sampCall))
+    },
+    future.seed = TRUE)
+
+  }else{# Not run Ks in parallel
+    groupRuns <- lapply(1:K, function(k){
+      #Prepare arguments for sampler (per group)
+      sampCall <- argg
+      sampCall$y <- y[groupIdx == k]
+      sampCall$Z <- Z[groupIdx == k,, drop = F]
+      sampCall$X <- X[groupIdx == k,, drop = F]
+      sampCall$link <- link
+      sampCall$missingX <- missingX
+
+      return(do.call(sampler, sampCall))
+    })
+  }
 
   #######################
   #Recover Full Control Params and Starting Values
@@ -291,6 +309,10 @@ kmbayes <- function(y,
   #######################
   #Reconstruct Posterior
   #######################
+
+  if(verbose & K > 1){
+    message('recombining results with WASP (can take some time)')
+  }
 
   #Get Beta Posteriors
   betaSamps <- lapply(samples, getElement, 'beta')

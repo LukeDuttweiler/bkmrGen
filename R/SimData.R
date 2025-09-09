@@ -39,8 +39,10 @@ SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
             link %in% c('identity', 'logit', 'probit', 'log'))
 
   #Different defaults for other families
-  if(family == 'poisson'){
-    beta.true <- .1
+  if(family == 'poisson' & length(beta.true) == 1){
+    if(beta.true == 2){
+      beta.true <- .1
+    }
   }
 
   if (family == "binomial") {
@@ -96,7 +98,12 @@ SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
   }
   colnames(Z) <- paste0("z", 1:M)
 
-  X <- cbind(3*cos(Z[, 1]) + 2*rnorm(n))
+  if(length(beta.true) == 1){
+    X <- cbind(3*cos(Z[, 1]) + 2*rnorm(n))
+  }else{
+    nx <- length(beta.true)*n
+    X <- matrix(rnorm(nx), nrow = n)
+  }
   #eps <- rnorm(n, sd = sqrt(sigsq.true))
   h <- apply(Z, 1, HFun)
   eta <- X * beta.true + h
