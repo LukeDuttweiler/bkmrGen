@@ -64,13 +64,13 @@ ComputePostmeanHnew.approx <- function(fit, y = NULL, Z = NULL, X = NULL, Znew =
   if(is.null(dim(X))) X <- matrix(X, ncol=1)
 
   ests <- ExtractEsts(fit, sel = sel)
-  sigsq.eps <- ests$sigsq.eps[, "mean", drop = F]
+  sigsq.eps <- as.numeric(ests$sigsq.eps[, "mean", drop = F])
   r <- ests$r[, "mean", drop = F]
   beta <- ests$beta[, "mean", drop = F]
-  lambda <- ests$lambda[, "mean", drop = F]
+  lambda <- as.numeric(ests$lambda[, "mean", drop = F])
   if (fit$family$family == "gaussian") {
     ycont <- y
-  } else if (fit$family$family == "binomial") {
+  } else {
     ycont <- ests$ystar[, "mean", drop = F]
   }
 
@@ -92,8 +92,6 @@ ComputePostmeanHnew.approx <- function(fit, y = NULL, Z = NULL, X = NULL, Znew =
     Kmat10 <- Kmat[(n0+1):nall,1:n0 ,drop=FALSE]
 
     lamK10Vinv <- lambda[1]*Kmat10 %*% Vinv
-    #print(dim(ycont))
-    #print(dim(ycont - X%*%beta))
     postvar <- lambda[1]*sigsq.eps*(Kmat1 - lamK10Vinv %*% t(Kmat10))
     postmean <- lamK10Vinv %*% (ycont - X%*%beta)
     # } else {
@@ -162,7 +160,7 @@ ComputePostmeanHnew.exact <- function(fit, y = NULL, Z = NULL, X = NULL, Znew = 
 
     if (family == "gaussian") {
       ycont <- y
-    } else if (family == "binomial") {
+    } else {
       ycont <- fit$ystar[s, ]
     }
 

@@ -174,6 +174,7 @@ kmbayes <- function(y,
   #Unpack options from family if given a function
   if('function' %in% class(family)){
     family <- family()
+    argg$family <- family
   }
 
   if('family' %in% class(family)){

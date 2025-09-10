@@ -31,6 +31,11 @@ HFun3 <- function(z, ind = 1:2) 4*plogis(1/4*(z[ind[1]] + z[ind[2]] + 1/2*z[ind[
 #'
 SimData <- function(n = 100, M = 5, sigsq.true = 0.5,
                     beta.true = 2, hfun = 3, Zgen = "norm", ind = 1:2, family = gaussian()) {
+  #Unpack options from family if given a function
+  if('function' %in% class(family)){
+    family <- family()
+  }
+
   link <- family$link
   linkinv <- family$linkinv
   family <- family$family
