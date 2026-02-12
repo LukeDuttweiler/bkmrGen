@@ -63,6 +63,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
                                verbose,
                                missingX,
                                data.comps,
+                               family,
                                ...){
 
   ## start JB code
@@ -199,6 +200,10 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
   }
   chain$est.h <- est.h
 
+  #Add theta (start at 1/M) for all
+  chain$theta <- chain$r
+  chain$theta[1,] <- rep(1/ncol(chain$theta), ncol(chain$theta))
+
   ## components
   Vcomps <- makeVcomps(r = chain$r[1, ], lambda = chain$lambda[1, ], Z = Z, data.comps = data.comps)
 
@@ -239,12 +244,13 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
     }
     chain$lambda[s,] <- lambdaSim
 
-    ## r
+    ## r (and theta)
+    thetaSim <- chain$theta[s-1,]
     rSim <- chain$r[s - 1,]
     comp <- which(!1:ncol(Z) %in% ztest)
     if (length(comp) != 0) {
       if (rmethod == "equal") { ## common r for those variables not being selected
-        varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s - 1,],
+        varcomps <- r.update(r = rSim, theta = chain$theta[s-1,], whichcomp = comp, delta = chain$delta[s - 1,],
                              lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,],
                              sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z,
                              data.comps = data.comps, control.params = control.params,
@@ -259,7 +265,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
         }
       } else if (rmethod == "varying") { ## allow a different r_m
         for (whichr in comp) {
-          varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s - 1,],
+          varcomps <- r.update(r = rSim, theta = chain$theta[s-1,], whichcomp = whichr, delta = chain$delta[s - 1,],
                                lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,],
                                sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z,
                                data.comps = data.comps, control.params = control.params,
@@ -277,7 +283,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
     }
     ## for those variables being selected: joint posterior of (r,delta)
     if (varsel) {
-      varcomps <- rdelta.update(r = rSim, delta = chain$delta[s - 1,],
+      varcomps <- rdelta.update(r = rSim, theta = thetaSim, delta = chain$delta[s - 1,],
                                 lambda = chain$lambda[s,], y = ycont, X = X,
                                 beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s],
                                 Vcomps = Vcomps, Z = Z, ztest = ztest,
@@ -292,9 +298,27 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
       if (varcomps$acc) {
         Vcomps <- varcomps$Vcomps
         chain$acc.rdelta[s] <- varcomps$acc
+
+        #Under an ACCEPTED move of type 1, the number of variables changes. Therefore, we adjust the thetas so that
+        #they keep their ratio to the new sum
+        if(sum(chain$delta[s,]) > sum(chain$delta[s-1,])){#Added a variable
+          thetaSim[is.na(thetaSim) & chain$delta[s,] == 1] <- 1/sum(chain$delta[s,])
+          thetaSim <- thetaSim/sum(thetaSim, na.rm = TRUE)
+        }else if(sum(chain$delta[s,]) < sum(chain$delta[s-1,])){#Lost a variable
+          thetaSim[chain$delta[s,] != 1] <- NA
+          thetaSim <- thetaSim/sum(thetaSim, na.rm = TRUE)
+        }
+
       }
     }
     chain$r[s,] <- rSim
+
+    ## theta
+    thetaSim <- theta.update(rmethod = rmethod, r = chain$r[s,], delta = chain$delta[s,],
+                             theta = thetaSim,
+                             control.params = control.params,
+                             rprior.logdens = rprior.logdens)
+    chain$theta[s,] <- thetaSim
 
     ###################################################
     ## generate posterior sample of h(z) from its posterior P(h | beta, sigsq.eps, lambda, r, y)
@@ -418,6 +442,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
                              verbose,
                              missingX,
                              data.comps,
+                             family,
                              ...){
 
   ## start JB code
@@ -569,6 +594,10 @@ bkmr_mcmc_probit_oneChain <- function(y,
   }
   chain$est.h <- est.h
 
+  #Add theta (start at 1/M) for all
+  chain$theta <- chain$r
+  chain$theta[1,] <- rep(1/ncol(chain$theta), ncol(chain$theta))
+
   ## components
   Vcomps <- makeVcomps(r = chain$r[1, ], lambda = chain$lambda[1, ], Z = Z, data.comps = data.comps)
 
@@ -619,12 +648,13 @@ bkmr_mcmc_probit_oneChain <- function(y,
     chain$lambda[s,] <- lambdaSim
 
 
-    ## r
+    ## r (and theta)
+    thetaSim <- chain$theta[s-1,]
     rSim <- chain$r[s - 1,]
     comp <- which(!1:ncol(Z) %in% ztest)
     if (length(comp) != 0) {
       if (rmethod == "equal") { ## common r for those variables not being selected
-        varcomps <- r.update(r = rSim, whichcomp = comp, delta = chain$delta[s - 1,],
+        varcomps <- r.update(r = rSim, theta = thetaSim, whichcomp = comp, delta = chain$delta[s - 1,],
                              lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,],
                              sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z,
                              data.comps = data.comps, control.params = control.params,
@@ -639,7 +669,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
         }
       } else if (rmethod == "varying") { ## allow a different r_m
         for (whichr in comp) {
-          varcomps <- r.update(r = rSim, whichcomp = whichr, delta = chain$delta[s - 1,],
+          varcomps <- r.update(r = rSim, theta = thetaSim, whichcomp = whichr, delta = chain$delta[s - 1,],
                                lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,],
                                sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z,
                                data.comps = data.comps, control.params = control.params,
@@ -657,7 +687,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
     }
     ## for those variables being selected: joint posterior of (r,delta)
     if (varsel) {
-      varcomps <- rdelta.update(r = rSim, delta = chain$delta[s - 1,],
+      varcomps <- rdelta.update(r = rSim, theta = thetaSim, delta = chain$delta[s - 1,],
                                 lambda = chain$lambda[s,], y = ycont, X = X,
                                 beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s],
                                 Vcomps = Vcomps, Z = Z, ztest = ztest,
@@ -672,9 +702,27 @@ bkmr_mcmc_probit_oneChain <- function(y,
       if (varcomps$acc) {
         Vcomps <- varcomps$Vcomps
         chain$acc.rdelta[s] <- varcomps$acc
+
+        #Under an ACCEPTED move of type 1, the number of variables changes. Therefore, we adjust the thetas so that
+        #they keep their ratio to the new sum
+        if(sum(chain$delta[s,]) > sum(chain$delta[s-1,])){#Added a variable
+          thetaSim[is.na(thetaSim) & chain$delta[s,] == 1] <- 1/sum(chain$delta[s,])
+          thetaSim <- thetaSim/sum(thetaSim, na.rm = TRUE)
+        }else if(sum(chain$delta[s,]) < sum(chain$delta[s-1,])){#Lost a variable
+          thetaSim[chain$delta[s,] != 1] <- NA
+          thetaSim <- thetaSim/sum(thetaSim, na.rm = TRUE)
+        }
+
       }
     }
     chain$r[s,] <- rSim
+
+    ## theta
+    thetaSim <- theta.update(rmethod = rmethod, r = chain$r[s,], delta = chain$delta[s,],
+                             theta = thetaSim,
+                             control.params = control.params,
+                             rprior.logdens = rprior.logdens)
+    chain$theta[s,] <- thetaSim
 
     ###################################################
     ## generate posterior sample of h(z) from its posterior P(h | beta, sigsq.eps, lambda, r, y)

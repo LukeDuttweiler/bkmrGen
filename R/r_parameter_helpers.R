@@ -25,10 +25,10 @@ set.r.params <- function(r.prior, comp, r.params) {
 set.r.MH.functions <- function(r.prior) {
   if(r.prior == "gamma") {
     # r.params <- list(mu.r, sigma.r, r.muprop, r.jump1, r.jump2)
-    rprior.logdens <- function(x, r.params) {
+    rprior.logdens <- function(x, r.params, theta) {
       mu.r <- r.params$mu.r
       sigma.r <- r.params$sigma.r
-      dgamma(x, shape=mu.r^2/sigma.r^2, rate=mu.r/sigma.r^2, log=TRUE)
+      dgamma(x^(1/theta), shape=mu.r^2/sigma.r^2, rate=mu.r/sigma.r^2, log=TRUE)
     }
     rprop.gen1 <- function(r.params) {
       r.muprop <- r.params$r.muprop
@@ -60,10 +60,10 @@ set.r.MH.functions <- function(r.prior) {
 
   if(r.prior == "invunif") {
     # r.params <- list(r.a, r.b, r.jump2)
-    rprior.logdens <- function(x, r.params) {
+    rprior.logdens <- function(x, r.params, theta) {
       r.a <- r.params$r.a
       r.b <- r.params$r.b
-      ifelse(1/r.b <= x & x <= 1/r.a, -2*log(x) - log(r.b - r.a), log(0))
+      ifelse(1/r.b <= x^(1/theta) & x^(1/theta) <= 1/r.a, -2*log(x^(1/theta)) - log(r.b - r.a), log(0))
     }
     rprop.gen1 <- function(r.params) {
       r.a <- r.params$r.a
@@ -103,10 +103,10 @@ set.r.MH.functions <- function(r.prior) {
 
   if(r.prior == "unif") {
     # r.params <- list(r.a, r.b, r.jump2)
-    rprior.logdens <- function(x, r.params) {
+    rprior.logdens <- function(x, r.params, theta) {
       r.a <- r.params$r.a
       r.b <- r.params$r.b
-      dunif(x, r.a, r.b, log=TRUE)
+      dunif(x^(1/theta), r.a, r.b, log=TRUE)
     }
     rprop.gen1 <- function(r.params) {
       r.a <- r.params$r.a

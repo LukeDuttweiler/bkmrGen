@@ -180,9 +180,45 @@ lamAdj <- function(lam){
   }
 }
 
+theta.update <- function(rmethod, r, delta, theta, control.params, rprior.logdens){
+  if(rmethod == 'equal'){# If rmethod is equal, all thetas are the same
+    theta <- rep(1/sum(delta), length(theta))
+    return(theta)
+  }else if(rmethod == 'varying'){
+    theta.star <- theta
+    theta.star[delta == 1] <- LaplacesDemon::rdirichlet(1, alpha = rep(1, sum(delta))) #Draw new proposal for theta
+    theta.star[delta != 1] <- NA
+
+    #Calc MH ratio (independence sampler, so don't need proposal distribution)
+    mhR <- sapply(1:length(r), function(whichcomp){
+      deltacomp <- delta[whichcomp]
+
+      if(deltacomp == 1){
+        r.params <- make_r_params_comp(control.params$r.params, whichcomp)
+        rcomp <- r[whichcomp]
+        tcomp <- theta[whichcomp]
+        tcomp.star <- theta.star[whichcomp]
+        return(rprior.logdens(rcomp, r.params, tcomp.star) - rprior.logdens(rcomp, r.params, tcomp))
+      }else{
+        return(0)
+      }
+    })
+    mhR <- sum(mhR)
+    logalpha <- min(0,mhR)
+
+    ## return value
+    if( log(runif(1)) <= logalpha ) {
+      theta <- theta.star
+    }
+
+    return(theta)
+  }
+}
+
 #' Sample new r values for exposures fixed to be in the model
 #'
 #' @param r Augmented variables in kernel matrix
+#' @param theta Function smoothness parameter in prior for r
 #' @param whichcomp Integer vector indicating which r values should be updated
 #' @param delta Inclusion parameter for mixture components
 #' @param lambda Variance component, tau*sigma^\{-2\}
@@ -200,9 +236,10 @@ lamAdj <- function(lam){
 #' @param ... Catches unused arguments
 #'
 #' @return MH Step result containing updated r values
-r.update <- function(r, whichcomp, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, data.comps, control.params, rprop.gen, rprop.logdens, rprior.logdens, ...) {
+r.update <- function(r, theta, whichcomp, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, data.comps, control.params, rprop.gen, rprop.logdens, rprior.logdens, ...) {
   r.params <- make_r_params_comp(control.params$r.params, whichcomp)
   rcomp <- unique(r[whichcomp])
+  tcomp <- unique(theta[whichcomp])
   if(length(rcomp) > 1) stop("rcomp should only be 1-dimensional")
 
   ## generate a proposal
@@ -215,7 +252,7 @@ r.update <- function(r, whichcomp, delta, lambda, y, X, beta, sigsq.eps, Vcomps,
   negdifflogproposal <- -rprop.logdens(rcomp.star, rcomp, r.params = r.params) + rprop.logdens(rcomp, rcomp.star, r.params = r.params)
 
   ## prior distribution
-  diffpriors <- rprior.logdens(rcomp.star, r.params = r.params) - rprior.logdens(rcomp, r.params = r.params)
+  diffpriors <- rprior.logdens(rcomp.star, r.params = r.params, theta = tcomp) - rprior.logdens(rcomp, r.params = r.params, theta = tcomp)
 
   r.star <- r
   r.star[whichcomp] <- rcomp.star
@@ -234,13 +271,12 @@ r.update <- function(r, whichcomp, delta, lambda, y, X, beta, sigsq.eps, Vcomps,
 #' @param rprop.gen2 Proposal generation function for move type 2
 #' @param rprop.logdens1 Proposal log density function for move type 1
 #' @param rprior.logdens Prior log density function for move type 1
-#' @param rprior.logdens2 Prior log density function for move type 2
 #' @param rprop.logdens2 Proposal log density function for move type 2
 #' @param rprop.gen1 Proposal generation function for move type 1
 #' @param ... Catches unneeded arguments
 #'
 #' @return MH step result with update r and delta parameters
-rdelta.comp.update <- function(r, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, ztest, data.comps, control.params, rprop.gen2, rprop.logdens1, rprior.logdens, rprior.logdens2, rprop.logdens2, rprop.gen1, ...) { ## individual variable selection
+rdelta.comp.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, ztest, data.comps, control.params, rprop.gen2, rprop.logdens1, rprior.logdens, rprop.logdens2, rprop.gen1, ...) { ## individual variable selection
   r.params <- control.params$r.params
   a.p0 <- control.params$a.p0
   b.p0 <- control.params$b.p0
@@ -256,8 +292,9 @@ rdelta.comp.update <- function(r, delta, lambda, y, X, beta, sigsq.eps, Vcomps, 
     delta.star[comp] <- 1 - delta[comp]
     move.prob.star <- ifelse(all(delta.star[ztest] == 0), 1, 1/2)
     r.star[comp] <- ifelse(delta.star[comp] == 0, 0, rprop.gen1(r.params = r.params))
+    tcomp <- 1/sum(delta.star)#ifelse(delta.star[comp] == 1, 1/sum(delta.star), Inf)
 
-    diffpriors <- (lgamma(sum(delta.star[ztest]) + a.p0) + lgamma(length(ztest) - sum(delta.star[ztest]) + b.p0) - lgamma(sum(delta[ztest]) + a.p0) - lgamma(length(ztest) - sum(delta[ztest]) + b.p0)) + ifelse(delta[comp] == 1, -1, 1)*with(list(r.sel = ifelse(delta[comp] == 1, r[comp], r.star[comp])), rprior.logdens(x = r.sel, r.params = r.params))
+    diffpriors <- (lgamma(sum(delta.star[ztest]) + a.p0) + lgamma(length(ztest) - sum(delta.star[ztest]) + b.p0) - lgamma(sum(delta[ztest]) + a.p0) - lgamma(length(ztest) - sum(delta[ztest]) + b.p0)) + ifelse(delta[comp] == 1, -1, 1)*with(list(r.sel = ifelse(delta[comp] == 1, r[comp], r.star[comp])), rprior.logdens(x = r.sel, r.params = r.params, theta = tcomp))
 
     negdifflogproposal <- -log(move.prob.star) + log(move.prob) - ifelse(delta[comp] == 1, -1, 1)*with(list(r.sel = ifelse(delta[comp] == 1, r[comp], r.star[comp])), rprop.logdens1(x = r.sel, r.params = r.params))
 
@@ -266,8 +303,9 @@ rdelta.comp.update <- function(r, delta, lambda, y, X, beta, sigsq.eps, Vcomps, 
     r.params <- set.r.params(r.prior = control.params$r.prior, comp = comp, r.params = r.params)
 
     r.star[comp] <- rprop.gen2(current = r[comp], r.params = r.params)
+    tcomp <- theta[comp]
 
-    diffpriors <- rprior.logdens(r.star[comp], r.params = r.params) - rprior.logdens(r[comp], r.params = r.params)
+    diffpriors <- rprior.logdens(r.star[comp], r.params = r.params, theta = tcomp) - rprior.logdens(r[comp], r.params = r.params, theta = tcomp)
 
     negdifflogproposal <- -rprop.logdens2(r.star[comp], r[comp], r.params = r.params) + rprop.logdens2(r[comp], r.star[comp], r.params = r.params)
   }

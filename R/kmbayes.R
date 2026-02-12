@@ -271,6 +271,7 @@ kmbayes <- function(y,
       sampCall$X <- X[groupIdx == k,, drop = F]
       sampCall$link <- link
       sampCall$missingX <- missingX
+      sampCall$family <- family
 
       return(do.call(sampler, sampCall))
     },
@@ -285,6 +286,7 @@ kmbayes <- function(y,
       sampCall$X <- X[groupIdx == k,, drop = F]
       sampCall$link <- link
       sampCall$missingX <- missingX
+      sampCall$family <- family
 
       return(do.call(sampler, sampCall))
     })
