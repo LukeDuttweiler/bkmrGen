@@ -314,7 +314,7 @@ kmbayes <- function(y,
   #######################
 
   if(verbose & K > 1){
-    message('recombining results with WASP (can take some time)')
+    message('recombining results using M-Posterior (can take some time)')
   }
 
   #Get Beta Posteriors
@@ -322,7 +322,7 @@ kmbayes <- function(y,
 
   betaPosts <- sapply(1:ncol(betaSamps[[1]]), function(i){
     sampI <- lapply(betaSamps, function(b){return(b[,i])})
-    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
+    postI <- mpost_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
     return(postI)
   })
 
@@ -332,7 +332,7 @@ kmbayes <- function(y,
 
   lambdaPosts <- sapply(1:ncol(lambdaSamps[[1]]), function(i){
     sampI <- lapply(lambdaSamps, function(b){return(b[,i])})
-    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
+    postI <- mpost_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
     return(postI)
   })
 
@@ -342,7 +342,7 @@ kmbayes <- function(y,
 
   sigsqPosts <- sapply(1:ncol(sigsqSamps[[1]]), function(i){
     sampI <- lapply(sigsqSamps, function(b){return(b[,i])})
-    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
+    postI <- mpost_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
     return(postI)
   })
 
@@ -352,7 +352,7 @@ kmbayes <- function(y,
 
   rPosts <- sapply(1:ncol(rSamps[[1]]), function(i){
     sampI <- lapply(rSamps, function(b){return(b[,i])})
-    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
+    postI <- mpost_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
     return(postI)
   })
 
@@ -362,7 +362,7 @@ kmbayes <- function(y,
 
   deltaPosts <- sapply(1:ncol(deltaSamps[[1]]), function(i){
     sampI <- lapply(deltaSamps, function(b){return(b[,i])})
-    postI <- wasp_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
+    postI <- mpost_univariate(sampI, solver = WASPSolver, n_samps = n_samps)
     return(postI)
   })
 

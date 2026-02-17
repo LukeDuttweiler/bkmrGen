@@ -118,3 +118,31 @@ wasp_linProg <- function(DList, atomMat, solver = 'lpsolve'){
 
   return(ROI::solution(solution)[1:length(atomMat)])
 }
+
+#' Get Univariate M-Posterior
+#'
+#' Takes list of samples from univariate sub-sample posteriors and returns samples from the M-Posterior (Geometric median in the Wasserstein order 1 space). Utilizes Weiszfeld’s Algorithm with Euclidean distance.
+#'
+#' @param sampList List of samples from univariate posterior. Each sample must be a numeric vector.
+#' @param n_samps Number of samples to return from WASP. Defaults as length of first sub-sample provided in sampList.
+#' @param ... Kept to catch extraneous parameters from other methods.
+#'
+#' @return n_samps samples from M-Posterior
+#'
+mpost_univariate <- function(sampList, n_samps, ...){
+  #IF only one sample is provided, return that sample
+  if(length(sampList) == 1){
+    return(sampList[[1]])
+  }
+
+  #Reformat to match SBmedian reqs
+  sampList <- lapply(sampList, as.matrix, ncol = 1)
+
+  #Run Weizfeld alg
+  pst <- SBmedian::mpost.euc(splist = sampList)
+
+  #Get sample from Weizfeld alg
+  newSamp <- sample(pst$med.atoms, n_samps, replace = TRUE, prob = pst$med.weights)
+
+  return(newSamp)
+}

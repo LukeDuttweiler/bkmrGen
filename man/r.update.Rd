@@ -6,6 +6,7 @@
 \usage{
 r.update(
   r,
+  theta,
   whichcomp,
   delta,
   lambda,
@@ -25,6 +26,8 @@ r.update(
 }
 \arguments{
 \item{r}{Augmented variables in kernel matrix}
+
+\item{theta}{Function smoothness parameter in prior for r}
 
 \item{whichcomp}{Integer vector indicating which r values should be updated}
 

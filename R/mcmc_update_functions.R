@@ -104,6 +104,9 @@ MHstep <- function(r, lambda, lambda.star, r.star, delta, delta.star, y, X, Z, b
   diffliks <- 1/2*Vcomps.star$logdetVinv - 1/2*Vcomps$logdetVinv - 1/2/sigsq.eps*crossprod(mu, Vcomps.star$Vinv - Vcomps$Vinv)%*%mu
   logMHratio <- diffliks + diffpriors + negdifflogproposal
   logalpha <- min(0,logMHratio)
+  #if(is.nan(logalpha)){ #Protection against minor errors that can occur when r is defined on a distribution that is bounded above zero (which it can't be in theory, but makes some things smoother in practice sometimes)
+  #  logalpha <- -Inf
+  #}
 
   ## return value
   acc <- FALSE
@@ -198,13 +201,23 @@ theta.update <- function(rmethod, r, delta, theta, control.params, rprior.logden
         rcomp <- r[whichcomp]
         tcomp <- theta[whichcomp]
         tcomp.star <- theta.star[whichcomp]
-        return(rprior.logdens(rcomp, r.params, tcomp.star) - rprior.logdens(rcomp, r.params, tcomp))
+        res <- rprior.logdens(rcomp, r.params, tcomp.star) - rprior.logdens(rcomp, r.params, tcomp)
+        #if(is.nan(res)){
+        #  res <- 0
+        #}
+        return(res)
       }else{
         return(0)
       }
     })
+    mhRstar <- mhR
     mhR <- sum(mhR)
     logalpha <- min(0,mhR)
+
+    #if(is.nan(logalpha)){
+      #View(cbind(theta, theta.star, mhRstar, delta))
+    #  logalpha <- -Inf
+    #}
 
     ## return value
     if( log(runif(1)) <= logalpha ) {
@@ -324,7 +337,7 @@ rdelta.comp.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, V
 #' @param ... Catches unused arguments
 #'
 #' @return MH step result with update r and delta parameters
-rdelta.group.update <- function(r, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, ztest, data.comps, control.params, rprop.gen1, rprior.logdens, rprop.logdens1, rprop.gen2, rprop.logdens2, ...) { ## grouped variable selection
+rdelta.group.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, ztest, data.comps, control.params, rprop.gen1, rprior.logdens, rprop.logdens1, rprop.gen2, rprop.logdens2, ...) { ## grouped variable selection
   r.params <- control.params$r.params
   a.p0 <- control.params$a.p0
   b.p0 <- control.params$b.p0
@@ -362,9 +375,12 @@ rdelta.group.update <- function(r, delta, lambda, y, X, beta, sigsq.eps, Vcomps,
     comp <- ifelse(delta.source[source] == 1, source.comps[which(delta[source.comps] == 1)], source.comps[which(delta.star[source.comps] == 1)])
     r.params <- set.r.params(r.prior = control.params$r.prior, comp = comp, r.params = r.params)
 
+    #make stand in theta
+    tcomp <- 1/sum(delta.star)
+
     r.star[comp] <- ifelse(delta.star[comp] == 0, 0, rprop.gen1(r.params = r.params))
 
-    diffpriors <- ifelse(delta.source[source] == 1, log(length(sel.groups) - sum(delta.source) + b.p0) - log(sum(delta.source.star) + a.p0), log(sum(delta.source) + a.p0) - log(length(sel.groups) - sum(delta.source.star) + b.p0)) + ifelse(delta.source[source] == 1, 1, -1)*log(length(source.comps)) + ifelse(delta.source[source] == 1, -1, 1)*with(list(r.sel = ifelse(delta.source[source] == 1, r[comp], r.star[comp])), rprior.logdens(x = r.sel, r.params = r.params))
+    diffpriors <- ifelse(delta.source[source] == 1, log(length(sel.groups) - sum(delta.source) + b.p0) - log(sum(delta.source.star) + a.p0), log(sum(delta.source) + a.p0) - log(length(sel.groups) - sum(delta.source.star) + b.p0)) + ifelse(delta.source[source] == 1, 1, -1)*log(length(source.comps)) + ifelse(delta.source[source] == 1, -1, 1)*with(list(r.sel = ifelse(delta.source[source] == 1, r[comp], r.star[comp])), rprior.logdens(x = r.sel, r.params = r.params, theta = tcomp))
 
     negdifflogproposal <- -log(move.prob.star) + log(move.prob) -ifelse(delta.source[source] == 1, 1, -1)*(log(length(source.comps)) - with(list(r.sel = ifelse(delta.source[source] == 1, r[comp], r.star[comp])), rprop.logdens1(x = r.sel, r.params = r.params)))
 
@@ -384,22 +400,25 @@ rdelta.group.update <- function(r, delta, lambda, y, X, beta, sigsq.eps, Vcomps,
     delta.star[oldcomp] <- 0
     delta.star[comp] <- 1
 
+    tcomp <- theta[oldcomp]
+
     r.star[oldcomp] <- 0
     r.star[comp] <- rprop.gen1(r.params = r.params)
 
-    diffpriors <- rprior.logdens(r.star[comp], r.params = r.params) - rprior.logdens(r[oldcomp], r.params = r.params.oldcomp)
+    diffpriors <- rprior.logdens(r.star[comp], r.params = r.params, theta = tcomp) - rprior.logdens(r[oldcomp], r.params = r.params.oldcomp, theta = tcomp)
 
     negdifflogproposal <- -rprop.logdens1(r.star[comp], r.params = r.params) + rprop.logdens1(r[oldcomp], r.params = r.params.oldcomp)
 
   } else if(move.type == 3) { ## randomly select a component that is in the model and update it
     tmp <- which(delta == 1)
     comp <- ifelse(length(tmp) == 1, tmp, sample(tmp, 1))
+    tcomp <- theta[comp]
 
     r.params <- set.r.params(r.prior = control.params$r.prior, comp = comp, r.params = r.params)
 
     r.star[comp] <- rprop.gen2(current = r[comp], r.params = r.params)
 
-    diffpriors <- rprior.logdens(r.star[comp], r.params = r.params) - rprior.logdens(r[comp], r.params = r.params)
+    diffpriors <- rprior.logdens(r.star[comp], r.params = r.params, theta = tcomp) - rprior.logdens(r[comp], r.params = r.params, theta = tcomp)
 
     negdifflogproposal <- -rprop.logdens2(r.star[comp], r[comp], r.params = r.params) + rprop.logdens2(r[comp], r.star[comp], r.params = r.params)
   }

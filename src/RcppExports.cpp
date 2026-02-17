@@ -13,15 +13,23 @@ Rcpp::Rostream<false>& Rcpp::Rcerr = Rcpp::Rcpp_cerr_get();
 
 
 RcppExport SEXP _rcpp_module_boot_stan_fit4fit_logit_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4fit_logit_anisotropic_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4fit_logit_comp_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4fit_logit_comp_anisotropic_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4fit_poisson_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4fit_poisson_anisotropic_mod();
 RcppExport SEXP _rcpp_module_boot_stan_fit4fit_poisson_comp_mod();
+RcppExport SEXP _rcpp_module_boot_stan_fit4fit_poisson_comp_anisotropic_mod();
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rcpp_module_boot_stan_fit4fit_logit_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4fit_logit_mod, 0},
+    {"_rcpp_module_boot_stan_fit4fit_logit_anisotropic_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4fit_logit_anisotropic_mod, 0},
     {"_rcpp_module_boot_stan_fit4fit_logit_comp_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4fit_logit_comp_mod, 0},
+    {"_rcpp_module_boot_stan_fit4fit_logit_comp_anisotropic_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4fit_logit_comp_anisotropic_mod, 0},
     {"_rcpp_module_boot_stan_fit4fit_poisson_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4fit_poisson_mod, 0},
+    {"_rcpp_module_boot_stan_fit4fit_poisson_anisotropic_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4fit_poisson_anisotropic_mod, 0},
     {"_rcpp_module_boot_stan_fit4fit_poisson_comp_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4fit_poisson_comp_mod, 0},
+    {"_rcpp_module_boot_stan_fit4fit_poisson_comp_anisotropic_mod", (DL_FUNC) &_rcpp_module_boot_stan_fit4fit_poisson_comp_anisotropic_mod, 0},
     {NULL, NULL, 0}
 };
 

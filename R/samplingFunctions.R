@@ -104,7 +104,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
   control.params.default <- list(lambda.jump = rep(10, data.comps$nlambda),
                                  mu.lambda = rep(10, data.comps$nlambda),
                                  sigma.lambda = rep(10, data.comps$nlambda),
-                                 a.p0 = 1, b.p0 = 1, r.prior = "invunif", a.sigsq = 1e-3,
+                                 a.p0 = 1, b.p0 = 1, r.prior = "gamma", a.sigsq = 1e-3,
                                  b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1,
                                  r.jump = 0.1, r.jump1 = 2, r.jump2 = 0.1, r.a = 0, r.b = 100)
   if (!is.null(control.params)){
@@ -250,7 +250,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
     comp <- which(!1:ncol(Z) %in% ztest)
     if (length(comp) != 0) {
       if (rmethod == "equal") { ## common r for those variables not being selected
-        varcomps <- r.update(r = rSim, theta = chain$theta[s-1,], whichcomp = comp, delta = chain$delta[s - 1,],
+        varcomps <- r.update(r = rSim, theta = thetaSim, whichcomp = comp, delta = chain$delta[s - 1,],
                              lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,],
                              sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z,
                              data.comps = data.comps, control.params = control.params,
@@ -265,7 +265,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
         }
       } else if (rmethod == "varying") { ## allow a different r_m
         for (whichr in comp) {
-          varcomps <- r.update(r = rSim, theta = chain$theta[s-1,], whichcomp = whichr, delta = chain$delta[s - 1,],
+          varcomps <- r.update(r = rSim, theta = thetaSim, whichcomp = whichr, delta = chain$delta[s - 1,],
                                lambda = chain$lambda[s,], y = ycont, X = X, beta = chain$beta[s,],
                                sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, Z = Z,
                                data.comps = data.comps, control.params = control.params,
@@ -309,6 +309,16 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
           thetaSim <- thetaSim/sum(thetaSim, na.rm = TRUE)
         }
 
+        #Under an ACCEPTED move of type 2 during hierarchical variable selection ONLY, the active variables can switch
+        #without the number changing, therefore we move the value of theta with the switched variable
+        if(varcomps$move.type == 2 & hier_varsel){
+          #Find mismatch in delta and thetas
+          mm1 <- which((chain$delta[s,] == 1) & is.na(thetaSim))
+          mm2 <- which((chain$delta[s,] == 0) & !is.na(thetaSim))
+
+          #Switch theta to mismatched one
+          thetaSim[mm1] <- thetaSim[mm2]
+        }
       }
     }
     chain$r[s,] <- rSim
@@ -486,7 +496,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
   control.params.default <- list(lambda.jump = rep(sqrt(10), data.comps$nlambda),
                                  mu.lambda = rep(10, data.comps$nlambda),
                                  sigma.lambda = rep(10, data.comps$nlambda),
-                                 a.p0 = 1, b.p0 = 1, r.prior = "invunif", a.sigsq = 1e-3,
+                                 a.p0 = 1, b.p0 = 1, r.prior = "gamma", a.sigsq = 1e-3,
                                  b.sigsq = 1e-3, mu.r = 5, sigma.r = 5, r.muprop = 1,
                                  r.jump = 0.1, r.jump1 = 2, r.jump2 = 0.1, r.a = 0, r.b = 100)
   if (!is.null(control.params)){
@@ -713,6 +723,16 @@ bkmr_mcmc_probit_oneChain <- function(y,
           thetaSim <- thetaSim/sum(thetaSim, na.rm = TRUE)
         }
 
+        #Under an ACCEPTED move of type 2 during hierarchical variable selection ONLY, the active variables can switch
+        #without the number changing, therefore we move the value of theta with the switched variable
+        if(varcomps$move.type == 2 & hier_varsel){
+          #Find mismatch in delta and thetas
+          mm1 <- which((chain$delta[s,] == 1) & is.na(thetaSim))
+          mm2 <- which((chain$delta[s,] == 0) & !is.na(thetaSim))
+
+          #Switch theta to mismatched one
+          thetaSim[mm1] <- thetaSim[mm2]
+        }
       }
     }
     chain$r[s,] <- rSim
@@ -806,7 +826,7 @@ bkmr_mcmc_logit <- function(y,
   ###################
   #Run STAN
   ###################
-  ft <- rstan::sampling(stanmodels$fit_logit, data = stanDat,
+  ft <- rstan::sampling(stanmodels$fit_logit_anisotropic, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
                         chains = nchains, refresh = rf)
 
@@ -873,18 +893,18 @@ bkmr_mcmc_logit_comp <- function(y,
   ###################
   #Run STAN
   ###################
-  ft <- rstan::sampling(stanmodels$fit_logit_comp, data = stanDat,
+  ft <- rstan::sampling(stanmodels$fit_logit_comp_anisotropic, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
                         chains = nchains, refresh = rf)
 
   ###################
   #Get MCMC Samples
   ###################
-  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h_hat'))
-  samples <- lapply(c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h_hat'), function(nm){
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'delta', 'r', 'h_hat'))
+  samples <- lapply(c('beta', 'lambda', 'ystar', 'delta', 'r', 'h_hat'), function(nm){
     return(sExt[,grepl(nm, dimnames(sExt)$parameters), drop = F])
   })
-  names(samples) <- c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h.hat')
+  names(samples) <- c('beta', 'lambda', 'ystar', 'delta', 'r', 'h.hat')
 
   #################################
   #Add Unused parameters to samples
@@ -953,7 +973,7 @@ bkmr_mcmc_poisson_log <- function(y,
   ###################
   #Run STAN
   ###################
-  ft <- rstan::sampling(stanmodels$fit_poisson, data = stanDat,
+  ft <- rstan::sampling(stanmodels$fit_poisson_anisotropic, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
                         chains = nchains, refresh = rf)
 
@@ -1020,18 +1040,18 @@ bkmr_mcmc_poisson_log_comp <- function(y,
   ###################
   #Run STAN
   ###################
-  ft <- rstan::sampling(stanmodels$fit_poisson_comp, data = stanDat,
+  ft <- rstan::sampling(stanmodels$fit_poisson_comp_anisotropic, data = stanDat,
                         iter = iter + warmup, warmup = warmup,
                         chains = nchains, refresh = rf)
 
   ###################
   #Get MCMC Samples
   ###################
-  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h_hat'))
-  samples <- lapply(c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h_hat'), function(nm){
+  sExt <- as.matrix(ft, pars = c('beta', 'lambda', 'ystar', 'delta', 'r', 'h_hat'))
+  samples <- lapply(c('beta', 'lambda', 'ystar', 'delta', 'r', 'h_hat'), function(nm){
     return(sExt[,grepl(nm, dimnames(sExt)$parameters), drop = F])
   })
-  names(samples) <- c('beta', 'lambda', 'ystar', 'delta', 'r', 'rho', 'h.hat')
+  names(samples) <- c('beta', 'lambda', 'ystar', 'delta', 'r', 'h.hat')
 
   #################################
   #Add Unused parameters to samples

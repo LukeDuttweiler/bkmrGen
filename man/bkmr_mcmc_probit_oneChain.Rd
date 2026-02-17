@@ -22,6 +22,7 @@ bkmr_mcmc_probit_oneChain(
   verbose,
   missingX,
   data.comps,
+  family,
   ...
 )
 }
@@ -59,6 +60,8 @@ bkmr_mcmc_probit_oneChain(
 \item{missingX}{Logical Flag to indicate if matrix X was provided to the function}
 
 \item{data.comps}{Components needed for V matrix}
+
+\item{family}{family object (see ?family for examples) with family and link information.}
 
 \item{...}{Catches extra arguments}
 }

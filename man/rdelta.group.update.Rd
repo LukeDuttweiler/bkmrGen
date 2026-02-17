@@ -6,6 +6,7 @@
 \usage{
 rdelta.group.update(
   r,
+  theta,
   delta,
   lambda,
   y,
@@ -27,6 +28,8 @@ rdelta.group.update(
 }
 \arguments{
 \item{r}{Augmented variables in kernel matrix}
+
+\item{theta}{Function smoothness parameter in prior for r}
 
 \item{delta}{Inclusion parameter for mixture components}
 

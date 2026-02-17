@@ -3,9 +3,8 @@ data {
   int<lower=1> p;
   int<lower=1> d;
   matrix[N, d] X;
-  row_vector[p] Z[N];
+  array[N] vector[p] Z;
   int y[N];
-  real<lower=0> rho;
 }
 
 transformed data {
@@ -16,6 +15,7 @@ parameters {
   vector[d] beta;
   real<lower=0> lambda;
   vector[N] h_tilde;
+  real<lower=1e-4> rho;
 }
 
 transformed parameters {
@@ -24,12 +24,15 @@ transformed parameters {
   //vector[N] h_hat = L_cov * h_tilde;
   //vector[N] eta = h_hat + X * beta;
   //vector<lower=0>[N] mu = exp(eta);
-  vector[N] h_hat = cholesky_decompose(cov_exp_quad(Z, lambda, rho) + diag_matrix(rep_vector(1e-6, N)))*h_tilde;
+  real<lower=0> l = inv(sqrt(2)*pow(rho, 1.0/p)); // transform rho (adatpive parameter) to match stan requirements
+
+  vector[N] h_hat = cholesky_decompose(gp_exp_quad_cov(Z, lambda, l) + diag_matrix(rep_vector(1e-6, N)))*h_tilde;
 
   vector[N] ystar = h_hat + X * beta;
 }
 
 model {
+  rho ~ gamma(1, 1);
   lambda ~ gamma(1, .1);
   beta ~ normal(0, 100);
   h_tilde ~ normal(0, 1);

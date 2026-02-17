@@ -6,6 +6,7 @@
 \usage{
 rdelta.comp.update(
   r,
+  theta,
   delta,
   lambda,
   y,
@@ -20,7 +21,6 @@ rdelta.comp.update(
   rprop.gen2,
   rprop.logdens1,
   rprior.logdens,
-  rprior.logdens2,
   rprop.logdens2,
   rprop.gen1,
   ...
@@ -28,6 +28,8 @@ rdelta.comp.update(
 }
 \arguments{
 \item{r}{Augmented variables in kernel matrix}
+
+\item{theta}{Function smoothness parameter in prior for r}
 
 \item{delta}{Inclusion parameter for mixture components}
 
@@ -56,8 +58,6 @@ rdelta.comp.update(
 \item{rprop.logdens1}{Proposal log density function for move type 1}
 
 \item{rprior.logdens}{Prior log density function for move type 1}
-
-\item{rprior.logdens2}{Prior log density function for move type 2}
 
 \item{rprop.logdens2}{Proposal log density function for move type 2}
 
