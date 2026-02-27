@@ -4,7 +4,7 @@
 \alias{h.update}
 \title{Update estimates of subject-specific health effects in a Gibbs step}
 \usage{
-h.update(lambda, Vcomps, sigsq.eps, y, X, beta, r, Z, data.comps)
+h.update(lambda, Vcomps, sigsq.eps, y, X, beta, r, Z, data.comps, M = 1)
 }
 \arguments{
 \item{lambda}{Variance component, tau*sigma^\{-2\}}
@@ -24,6 +24,8 @@ h.update(lambda, Vcomps, sigsq.eps, y, X, beta, r, Z, data.comps)
 \item{Z}{Exposure design matrix}
 
 \item{data.comps}{Info for internal VComps.star calculation}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 }
 \value{
 Updated draws of h values

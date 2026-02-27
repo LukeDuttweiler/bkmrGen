@@ -14,6 +14,7 @@ bkmr_mcmc_poisson_log_comp(
   iter = 1000,
   warmup = 50,
   verbose,
+  M,
   ...
 )
 }
@@ -35,6 +36,8 @@ bkmr_mcmc_poisson_log_comp(
 \item{warmup}{Number of iterations to discard as warmups. Defaults to 100}
 
 \item{verbose}{TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting.}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 
 \item{...}{Catch all to allow package flexibility}
 }

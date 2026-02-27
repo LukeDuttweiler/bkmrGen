@@ -23,6 +23,7 @@ rdelta.comp.update(
   rprior.logdens,
   rprop.logdens2,
   rprop.gen1,
+  M = 1,
   ...
 )
 }
@@ -62,6 +63,8 @@ rdelta.comp.update(
 \item{rprop.logdens2}{Proposal log density function for move type 2}
 
 \item{rprop.gen1}{Proposal generation function for move type 1}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 
 \item{...}{Catches unneeded arguments}
 }

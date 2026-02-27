@@ -20,7 +20,8 @@ MHstep(
   negdifflogproposal,
   Vcomps,
   move.type,
-  data.comps
+  data.comps,
+  M = 1
 )
 }
 \arguments{
@@ -55,6 +56,8 @@ MHstep(
 \item{move.type}{Type of move proposed for delta/r, not utilized, just passed through}
 
 \item{data.comps}{Info for interal VComps.star calculation}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 }
 \value{
 List containing new MH values and inputs

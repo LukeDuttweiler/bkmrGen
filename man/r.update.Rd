@@ -21,6 +21,7 @@ r.update(
   rprop.gen,
   rprop.logdens,
   rprior.logdens,
+  M = 1,
   ...
 )
 }
@@ -56,6 +57,8 @@ r.update(
 \item{rprop.logdens}{Function to calculate log density for proposed r value}
 
 \item{rprior.logdens}{Function to calculate log density for proposed r under prior}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 
 \item{...}{Catches unused arguments}
 }

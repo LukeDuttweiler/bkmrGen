@@ -16,7 +16,8 @@ lambda.update(
   sigsq.eps,
   Vcomps,
   data.comps,
-  control.params
+  control.params,
+  M = 1
 )
 }
 \arguments{
@@ -43,6 +44,8 @@ lambda.update(
 \item{data.comps}{Info for internal VComps.star calculation}
 
 \item{control.params}{Control parameter list from \code{\link{kmbayes}}, can adjust MH proposal variance or prior values}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 }
 \value{
 MH Step output with updated version of lambda

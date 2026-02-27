@@ -4,7 +4,7 @@
 \alias{beta.update}
 \title{Update Beta parameters in a Gibbs Step}
 \usage{
-beta.update(X, Vinv, y, sigsq.eps)
+beta.update(X, Vinv, y, sigsq.eps, M = 1)
 }
 \arguments{
 \item{X}{Covariate design matrix}
@@ -14,6 +14,8 @@ beta.update(X, Vinv, y, sigsq.eps)
 \item{y}{Outcome vector}
 
 \item{sigsq.eps}{Sigma^2, variance component}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 }
 \value{
 Sampled vector of Betas

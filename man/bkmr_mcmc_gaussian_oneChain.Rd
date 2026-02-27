@@ -23,6 +23,7 @@ bkmr_mcmc_gaussian_oneChain(
   missingX,
   data.comps,
   family,
+  M = 1,
   ...
 )
 }
@@ -62,6 +63,8 @@ bkmr_mcmc_gaussian_oneChain(
 \item{data.comps}{Components needed for V matrix}
 
 \item{family}{family object (see ?family for examples) with family and link information.}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 
 \item{...}{Catches extra arguments}
 }

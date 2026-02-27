@@ -4,7 +4,19 @@
 \alias{newh.update}
 \title{Update estimates for new subject-specific health effects}
 \usage{
-newh.update(Z, Znew, Vcomps, lambda, sigsq.eps, r, y, X, beta, data.comps)
+newh.update(
+  Z,
+  Znew,
+  Vcomps,
+  lambda,
+  sigsq.eps,
+  r,
+  y,
+  X,
+  beta,
+  data.comps,
+  M = 1
+)
 }
 \arguments{
 \item{Z}{Exposure design matrix}
@@ -26,6 +38,8 @@ newh.update(Z, Znew, Vcomps, lambda, sigsq.eps, r, y, X, beta, data.comps)
 \item{beta}{Covariate parameter vector}
 
 \item{data.comps}{Info for internal VComps.star calculation}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 }
 \value{
 Updated samples of new h values

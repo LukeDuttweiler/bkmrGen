@@ -23,6 +23,7 @@ rdelta.group.update(
   rprop.logdens1,
   rprop.gen2,
   rprop.logdens2,
+  M = 1,
   ...
 )
 }
@@ -62,6 +63,8 @@ rdelta.group.update(
 \item{rprop.gen2}{Proposal generation function for move type 2}
 
 \item{rprop.logdens2}{Proposal log density function for move type 2}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 
 \item{...}{Catches unused arguments}
 }

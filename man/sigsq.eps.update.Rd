@@ -4,7 +4,7 @@
 \alias{sigsq.eps.update}
 \title{Update sigma^2 parameter in Gibbs step}
 \usage{
-sigsq.eps.update(y, X, beta, Vinv, a.eps = 0.001, b.eps = 0.001)
+sigsq.eps.update(y, X, beta, Vinv, a.eps = 0.001, b.eps = 0.001, M = 1)
 }
 \arguments{
 \item{y}{Outcome vector}
@@ -18,6 +18,8 @@ sigsq.eps.update(y, X, beta, Vinv, a.eps = 0.001, b.eps = 0.001)
 \item{a.eps}{Prior shape parameter for Gamma distribution}
 
 \item{b.eps}{Prior rate parameter for Gamma distribution}
+
+\item{M}{Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.}
 }
 \value{
 Sample from full conditional posterior

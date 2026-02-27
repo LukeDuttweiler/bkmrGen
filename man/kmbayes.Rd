@@ -18,6 +18,7 @@ kmbayes(
   id = NULL,
   verbose = TRUE,
   Znew = NULL,
+  sApprox = FALSE,
   starting.values = NULL,
   control.params = NULL,
   varsel = FALSE,
@@ -56,6 +57,8 @@ kmbayes(
 
 \item{Znew}{optional matrix of new predictor values at which to predict \code{h}, where each row represents a new observation. This will slow down the model fitting, and can be done as a post-processing step using \code{\link{SamplePred}}}
 
+\item{sApprox}{logical. if TRUE then Stochastic Approximation is used (only meaningful for K > 1) to reduce CI length, compensating for reduction in sample size enforced by sample splitting}
+
 \item{starting.values}{list of starting values for each parameter. If not specified default values will be chosen. (Only can change if family = gaussian() or binomial(link = 'logit'))}
 
 \item{control.params}{list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen. (Only can change if family = gaussian() or binomial(link = 'logit'))}
@@ -72,7 +75,7 @@ kmbayes(
 
 \item{est.h}{TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler. This will slow down the model fitting. (Only relevant if family = gaussian() or binomial(link = 'logit'))}
 
-\item{WASPSolver}{Linear-program solver to use. Solvers available are provided by the R package ROI (see ?ROI for details).}
+\item{WASPSolver}{Linear-program solver to use. Solvers available are provided 100by the R package ROI (see ?ROI for details).}
 }
 \value{
 an object of class "bkmrfit" (containing the posterior samples from the model fit), which has the associated methods: print, summary

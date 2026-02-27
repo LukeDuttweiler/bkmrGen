@@ -42,6 +42,7 @@ bkmr_mcmc_gaussian <- function(nchains, warmup, iter, ...){
 #'
 #' @param missingX Logical Flag to indicate if matrix X was provided to the function
 #' @param data.comps Components needed for V matrix
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #' @param ... Catches extra arguments
 #' @inheritParams kmbayes
 #'
@@ -435,6 +436,7 @@ bkmr_mcmc_probit <- function(nchains, warmup, iter, ...){
 #'
 #' @param missingX Logical Flag to indicate if matrix X was provided to the function
 #' @param data.comps Components needed for V matrix
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #' @param ... Catches extra arguments
 #' @inheritParams kmbayes
 #'
@@ -794,6 +796,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
 #' Fits bkmr_logit model using STAN. See file inst/stan/fit_logit.stan for STAN specifications.
 #'
 #' @inheritParams kmbayes
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #'
 #' @param ... Catch all to allow package flexibility
 #'
@@ -862,6 +865,7 @@ bkmr_mcmc_logit <- function(y,
 #' Fits bkmr_logit model using STAN. See file inst/stan/fit_logit_comp.stan for STAN specifications.
 #'
 #' @inheritParams kmbayes
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #'
 #' @param ... Catch all to allow package flexibility
 #'
@@ -943,6 +947,7 @@ bkmr_mcmc_poisson <- function(link, ...){
 #' Fits bkmr_poisson model using STAN. See file inst/stan/fit_poisson.stan for STAN specifications.
 #'
 #' @inheritParams kmbayes
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #'
 #' @param ... Catch all to allow package flexibility
 #'
@@ -1011,6 +1016,7 @@ bkmr_mcmc_poisson_log <- function(y,
 #' Fits bkmr_poisson model using STAN. See file inst/stan/fit_poisson_comp.stan for STAN specifications.
 #'
 #' @inheritParams kmbayes
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #'
 #' @param ... Catch all to allow package flexibility
 #'
