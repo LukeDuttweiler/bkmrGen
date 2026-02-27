@@ -5,6 +5,7 @@ data {
   matrix[N, d] X;
   array[N] vector[p] Z;
   int y[N];
+  int<lower=0> M;
 }
 
 transformed data {
@@ -41,5 +42,5 @@ model {
   lambda ~ gamma(1, .1);
   beta ~ normal(0, 100);
   h_tilde ~ normal(0, 1);
-  y ~ poisson(exp(ystar));
+  target += poisson_lpmf(y|exp(ystar));
 }

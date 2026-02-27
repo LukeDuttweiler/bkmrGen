@@ -27,33 +27,33 @@ namespace model_fit_logit_comp_anisotropic_namespace {
 using stan::model::model_base_crtp;
 using namespace stan::math;
 stan::math::profile_map profiles__;
-static constexpr std::array<const char*, 46> locations_array__ =
+static constexpr std::array<const char*, 47> locations_array__ =
   {" (found before start of program)",
-  " (in 'fit_logit_comp_anisotropic', line 12, column 2 to column 17)",
-  " (in 'fit_logit_comp_anisotropic', line 13, column 2 to column 23)",
-  " (in 'fit_logit_comp_anisotropic', line 14, column 2 to column 33)",
-  " (in 'fit_logit_comp_anisotropic', line 15, column 2 to column 17)",
-  " (in 'fit_logit_comp_anisotropic', line 16, column 2 to column 19)",
-  " (in 'fit_logit_comp_anisotropic', line 17, column 2 to column 20)",
-  " (in 'fit_logit_comp_anisotropic', line 25, column 2 to column 27)",
+  " (in 'fit_logit_comp_anisotropic', line 13, column 2 to column 17)",
+  " (in 'fit_logit_comp_anisotropic', line 14, column 2 to column 23)",
+  " (in 'fit_logit_comp_anisotropic', line 15, column 2 to column 33)",
+  " (in 'fit_logit_comp_anisotropic', line 16, column 2 to column 17)",
+  " (in 'fit_logit_comp_anisotropic', line 17, column 2 to column 19)",
+  " (in 'fit_logit_comp_anisotropic', line 18, column 2 to column 20)",
   " (in 'fit_logit_comp_anisotropic', line 26, column 2 to column 27)",
-  " (in 'fit_logit_comp_anisotropic', line 31, column 2 to column 115)",
-  " (in 'fit_logit_comp_anisotropic', line 32, column 2 to column 37)",
-  " (in 'fit_logit_comp_anisotropic', line 28, column 4 to column 43)",
-  " (in 'fit_logit_comp_anisotropic', line 29, column 4 to column 21)",
-  " (in 'fit_logit_comp_anisotropic', line 27, column 15 to line 30, column 3)",
-  " (in 'fit_logit_comp_anisotropic', line 27, column 2 to line 30, column 3)",
-  " (in 'fit_logit_comp_anisotropic', line 35, column 2 to column 40)",
-  " (in 'fit_logit_comp_anisotropic', line 37, column 4 to column 26)",
-  " (in 'fit_logit_comp_anisotropic', line 36, column 15 to line 38, column 3)",
-  " (in 'fit_logit_comp_anisotropic', line 36, column 2 to line 38, column 3)",
-  " (in 'fit_logit_comp_anisotropic', line 40, column 4 to line 42, column 54)",
-  " (in 'fit_logit_comp_anisotropic', line 39, column 15 to line 43, column 3)",
-  " (in 'fit_logit_comp_anisotropic', line 39, column 2 to line 43, column 3)",
-  " (in 'fit_logit_comp_anisotropic', line 44, column 2 to column 25)",
-  " (in 'fit_logit_comp_anisotropic', line 45, column 2 to column 24)",
-  " (in 'fit_logit_comp_anisotropic', line 46, column 2 to column 25)",
-  " (in 'fit_logit_comp_anisotropic', line 47, column 2 to column 29)",
+  " (in 'fit_logit_comp_anisotropic', line 27, column 2 to column 27)",
+  " (in 'fit_logit_comp_anisotropic', line 32, column 2 to column 115)",
+  " (in 'fit_logit_comp_anisotropic', line 33, column 2 to column 37)",
+  " (in 'fit_logit_comp_anisotropic', line 29, column 4 to column 43)",
+  " (in 'fit_logit_comp_anisotropic', line 30, column 4 to column 21)",
+  " (in 'fit_logit_comp_anisotropic', line 28, column 15 to line 31, column 3)",
+  " (in 'fit_logit_comp_anisotropic', line 28, column 2 to line 31, column 3)",
+  " (in 'fit_logit_comp_anisotropic', line 36, column 2 to column 40)",
+  " (in 'fit_logit_comp_anisotropic', line 38, column 4 to column 26)",
+  " (in 'fit_logit_comp_anisotropic', line 37, column 15 to line 39, column 3)",
+  " (in 'fit_logit_comp_anisotropic', line 37, column 2 to line 39, column 3)",
+  " (in 'fit_logit_comp_anisotropic', line 41, column 4 to line 43, column 54)",
+  " (in 'fit_logit_comp_anisotropic', line 40, column 15 to line 44, column 3)",
+  " (in 'fit_logit_comp_anisotropic', line 40, column 2 to line 44, column 3)",
+  " (in 'fit_logit_comp_anisotropic', line 45, column 2 to column 25)",
+  " (in 'fit_logit_comp_anisotropic', line 46, column 2 to column 24)",
+  " (in 'fit_logit_comp_anisotropic', line 47, column 2 to column 25)",
+  " (in 'fit_logit_comp_anisotropic', line 48, column 2 to column 48)",
   " (in 'fit_logit_comp_anisotropic', line 2, column 2 to column 17)",
   " (in 'fit_logit_comp_anisotropic', line 3, column 2 to column 17)",
   " (in 'fit_logit_comp_anisotropic', line 4, column 2 to column 17)",
@@ -65,15 +65,16 @@ static constexpr std::array<const char*, 46> locations_array__ =
   " (in 'fit_logit_comp_anisotropic', line 6, column 2 to column 23)",
   " (in 'fit_logit_comp_anisotropic', line 7, column 8 to column 9)",
   " (in 'fit_logit_comp_anisotropic', line 7, column 2 to column 11)",
-  " (in 'fit_logit_comp_anisotropic', line 12, column 9 to column 10)",
-  " (in 'fit_logit_comp_anisotropic', line 14, column 30 to column 31)",
-  " (in 'fit_logit_comp_anisotropic', line 15, column 9 to column 10)",
-  " (in 'fit_logit_comp_anisotropic', line 16, column 10 to column 11)",
-  " (in 'fit_logit_comp_anisotropic', line 17, column 9 to column 10)",
-  " (in 'fit_logit_comp_anisotropic', line 25, column 8 to column 9)",
+  " (in 'fit_logit_comp_anisotropic', line 8, column 2 to column 17)",
+  " (in 'fit_logit_comp_anisotropic', line 13, column 9 to column 10)",
+  " (in 'fit_logit_comp_anisotropic', line 15, column 30 to column 31)",
+  " (in 'fit_logit_comp_anisotropic', line 16, column 9 to column 10)",
+  " (in 'fit_logit_comp_anisotropic', line 17, column 10 to column 11)",
+  " (in 'fit_logit_comp_anisotropic', line 18, column 9 to column 10)",
   " (in 'fit_logit_comp_anisotropic', line 26, column 8 to column 9)",
-  " (in 'fit_logit_comp_anisotropic', line 31, column 9 to column 10)",
-  " (in 'fit_logit_comp_anisotropic', line 32, column 9 to column 10)"};
+  " (in 'fit_logit_comp_anisotropic', line 27, column 8 to column 9)",
+  " (in 'fit_logit_comp_anisotropic', line 32, column 9 to column 10)",
+  " (in 'fit_logit_comp_anisotropic', line 33, column 9 to column 10)"};
 #include <stan_meta_header.hpp>
 class model_fit_logit_comp_anisotropic final : public model_base_crtp<model_fit_logit_comp_anisotropic> {
 private:
@@ -83,6 +84,7 @@ private:
   Eigen::Matrix<double,-1,-1> X_data__;
   std::vector<Eigen::Matrix<double,-1,1>> Z;
   std::vector<int> y;
+  int M;
   Eigen::Map<Eigen::Matrix<double,-1,-1>> X{nullptr, 0, 0};
 public:
   ~model_fit_logit_comp_anisotropic() {}
@@ -197,22 +199,30 @@ public:
       current_statement__ = 36;
       y = context__.vals_i("y");
       current_statement__ = 37;
-      stan::math::validate_non_negative_index("beta", "d", d);
+      context__.validate_dims("data initialization", "M", "int",
+        std::vector<size_t>{});
+      M = std::numeric_limits<int>::min();
+      current_statement__ = 37;
+      M = context__.vals_i("M")[(1 - 1)];
+      current_statement__ = 37;
+      stan::math::check_greater_or_equal(function__, "M", M, 0);
       current_statement__ = 38;
-      stan::math::validate_non_negative_index("delta", "p", p);
+      stan::math::validate_non_negative_index("beta", "d", d);
       current_statement__ = 39;
-      stan::math::validate_non_negative_index("zeta", "p", p);
+      stan::math::validate_non_negative_index("delta", "p", p);
       current_statement__ = 40;
-      stan::math::validate_positive_index("theta", "p", p);
+      stan::math::validate_non_negative_index("zeta", "p", p);
       current_statement__ = 41;
-      stan::math::validate_non_negative_index("h_tilde", "N", N);
+      stan::math::validate_positive_index("theta", "p", p);
       current_statement__ = 42;
-      stan::math::validate_non_negative_index("r", "p", p);
+      stan::math::validate_non_negative_index("h_tilde", "N", N);
       current_statement__ = 43;
-      stan::math::validate_non_negative_index("l", "p", p);
+      stan::math::validate_non_negative_index("r", "p", p);
       current_statement__ = 44;
-      stan::math::validate_non_negative_index("h_hat", "N", N);
+      stan::math::validate_non_negative_index("l", "p", p);
       current_statement__ = 45;
+      stan::math::validate_non_negative_index("h_hat", "N", N);
+      current_statement__ = 46;
       stan::math::validate_non_negative_index("ystar", "N", N);
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);
@@ -342,7 +352,8 @@ public:
         current_statement__ = 24;
         lp_accum__.add(stan::math::normal_lpdf<propto__>(h_tilde, 0, 1));
         current_statement__ = 25;
-        lp_accum__.add(stan::math::bernoulli_logit_lpmf<propto__>(y, ystar));
+        lp_accum__.add((M *
+          stan::math::bernoulli_logit_lpmf<false>(y, ystar)));
       }
     } catch (const std::exception& e) {
       stan::lang::rethrow_located(e, locations_array__[current_statement__]);

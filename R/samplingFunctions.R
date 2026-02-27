@@ -64,6 +64,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
                                missingX,
                                data.comps,
                                family,
+                               M = 1,
                                ...){
 
   ## start JB code
@@ -225,17 +226,20 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
 
     ## beta
     if (!missingX) {
-      chain$beta[s,] <- beta.update(X = X, Vinv = Vcomps$Vinv, y = ycont, sigsq.eps = chain$sigsq.eps[s - 1])
+      chain$beta[s,] <- beta.update(X = X, Vinv = Vcomps$Vinv, y = ycont, sigsq.eps = chain$sigsq.eps[s - 1], M = M)
     }
 
     ## \sigma_\epsilon^2
-    chain$sigsq.eps[s] <- sigsq.eps.update(y = ycont, X = X, beta = chain$beta[s,], Vinv = Vcomps$Vinv, a.eps = control.params$a.sigsq, b.eps = control.params$b.sigsq)
+    chain$sigsq.eps[s] <- sigsq.eps.update(y = ycont, X = X, beta = chain$beta[s,], Vinv = Vcomps$Vinv, a.eps = control.params$a.sigsq, b.eps = control.params$b.sigsq, M = M)
 
 
     ## lambda
     lambdaSim <- chain$lambda[s - 1,]
     for (comp in 1:data.comps$nlambda) {
-      varcomps <- lambda.update(r = chain$r[s - 1,], delta = chain$delta[s - 1,], lambda = lambdaSim, whichcomp = comp, y = ycont, X = X, Z = Z, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, data.comps = data.comps, control.params = control.params)
+      varcomps <- lambda.update(r = chain$r[s - 1,], delta = chain$delta[s - 1,], lambda = lambdaSim,
+                                whichcomp = comp, y = ycont, X = X, Z = Z,
+                                beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps,
+                                data.comps = data.comps, control.params = control.params, M = M)
       lambdaSim <- varcomps$lambda
       if (varcomps$acc) {
         Vcomps <- varcomps$Vcomps
@@ -257,7 +261,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
                              rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
                              rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
                              rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
-                             rprop.logdens = rprop.logdens)
+                             rprop.logdens = rprop.logdens, M = M)
         rSim <- varcomps$r
         if (varcomps$acc) {
           Vcomps <- varcomps$Vcomps
@@ -272,7 +276,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
                                rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
                                rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
                                rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
-                               rprop.logdens = rprop.logdens)
+                               rprop.logdens = rprop.logdens, M = M)
           rSim <- varcomps$r
           if (varcomps$acc) {
             Vcomps <- varcomps$Vcomps
@@ -291,7 +295,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
                                 rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
                                 rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
                                 rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
-                                rprop.logdens = rprop.logdens)
+                                rprop.logdens = rprop.logdens, M = M)
       chain$delta[s,] <- varcomps$delta
       rSim <- varcomps$r
       chain$move.type[s] <- varcomps$move.type
@@ -334,7 +338,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
     ## generate posterior sample of h(z) from its posterior P(h | beta, sigsq.eps, lambda, r, y)
 
     if (est.h) {
-      hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = ycont, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z, data.comps = data.comps)
+      hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = ycont, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z, data.comps = data.comps, M = M)
       chain$h.hat[s,] <- hcomps$hsamp
       if (!is.null(hcomps$hsamp.star)) { ## GPP
         Vcomps$hsamp.star <- hcomps$hsamp.star
@@ -346,7 +350,7 @@ bkmr_mcmc_gaussian_oneChain <- function(y,
     ## generate posterior samples of h(Znew) from its posterior P(hnew | beta, sigsq.eps, lambda, r, y)
 
     if (!is.null(Znew)) {
-      chain$hnew[s,] <- newh.update(Z = Z, Znew = Znew, Vcomps = Vcomps, lambda = chain$lambda[s,], sigsq.eps = chain$sigsq.eps[s], r = chain$r[s,], y = ycont, X = X, beta = chain$beta[s,], data.comps = data.comps)
+      chain$hnew[s,] <- newh.update(Z = Z, Znew = Znew, Vcomps = Vcomps, lambda = chain$lambda[s,], sigsq.eps = chain$sigsq.eps[s], r = chain$r[s,], y = ycont, X = X, beta = chain$beta[s,], data.comps = data.comps, M = M)
     }
 
     ###################################################
@@ -453,6 +457,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
                              missingX,
                              data.comps,
                              family,
+                             M = 1,
                              ...){
 
   ## start JB code
@@ -630,7 +635,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
       res <- ystar.update.noh(y = y, X = X, beta = chain$beta[s - 1,], Vinv = Vcomps$Vinv, ystar = chain$ystar[s - 1, ])
       if(any(is.na(res))){
         if(all(chain$h[s-1,] == 0)){ #Make sure h is updated for the necessary iteration
-          chain$h[s-1,] <- h.update(lambda = chain$lambda[s-1,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s-1], y = ycont, X = X, beta = chain$beta[s-1,], r = chain$r[s-1,], Z = Z, data.comps = data.comps)$hsamp
+          chain$h[s-1,] <- h.update(lambda = chain$lambda[s-1,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s-1], y = ycont, X = X, beta = chain$beta[s-1,], r = chain$r[s-1,], Z = Z, data.comps = data.comps, M = M)$hsamp
         }
         res <- ystar.update(y = y, X = X, beta = chain$beta[s - 1,], h = chain$h[s - 1, ])
       }
@@ -642,13 +647,13 @@ bkmr_mcmc_probit_oneChain <- function(y,
 
     ## beta
     if (!missingX) {
-      chain$beta[s,] <- beta.update(X = X, Vinv = Vcomps$Vinv, y = ycont, sigsq.eps = chain$sigsq.eps[s - 1])
+      chain$beta[s,] <- beta.update(X = X, Vinv = Vcomps$Vinv, y = ycont, sigsq.eps = chain$sigsq.eps[s - 1], M = M)
     }
 
     ## lambda
     lambdaSim <- chain$lambda[s - 1,]
     for (comp in 1:data.comps$nlambda) {
-      varcomps <- lambda.update(r = chain$r[s - 1,], delta = chain$delta[s - 1,], lambda = lambdaSim, whichcomp = comp, y = ycont, X = X, Z = Z, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, data.comps = data.comps, control.params = control.params)
+      varcomps <- lambda.update(r = chain$r[s - 1,], delta = chain$delta[s - 1,], lambda = lambdaSim, whichcomp = comp, y = ycont, X = X, Z = Z, beta = chain$beta[s,], sigsq.eps = chain$sigsq.eps[s], Vcomps = Vcomps, data.comps = data.comps, control.params = control.params, M = M)
       lambdaSim <- varcomps$lambda
       if (varcomps$acc) {
         Vcomps <- varcomps$Vcomps
@@ -671,7 +676,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
                              rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
                              rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
                              rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
-                             rprop.logdens = rprop.logdens)
+                             rprop.logdens = rprop.logdens, M = M)
         rSim <- varcomps$r
         if (varcomps$acc) {
           Vcomps <- varcomps$Vcomps
@@ -686,7 +691,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
                                rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
                                rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
                                rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
-                               rprop.logdens = rprop.logdens)
+                               rprop.logdens = rprop.logdens, M = M)
           rSim <- varcomps$r
           if (varcomps$acc) {
             Vcomps <- varcomps$Vcomps
@@ -705,7 +710,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
                                 rprior.logdens = rprior.logdens, rprop.gen1 = rprop.gen1,
                                 rprop.logdens1 = rprop.logdens1, rprop.gen2 = rprop.gen2,
                                 rprop.logdens2 = rprop.logdens2, rprop.gen = rprop.gen,
-                                rprop.logdens = rprop.logdens)
+                                rprop.logdens = rprop.logdens, M = M)
       chain$delta[s,] <- varcomps$delta
       rSim <- varcomps$r
       chain$move.type[s] <- varcomps$move.type
@@ -748,7 +753,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
     ## generate posterior sample of h(z) from its posterior P(h | beta, sigsq.eps, lambda, r, y)
 
     if (est.h) {
-      hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = ycont, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z, data.comps = data.comps)
+      hcomps <- h.update(lambda = chain$lambda[s,], Vcomps = Vcomps, sigsq.eps = chain$sigsq.eps[s], y = ycont, X = X, beta = chain$beta[s,], r = chain$r[s,], Z = Z, data.comps = data.comps, M = M)
       chain$h.hat[s,] <- hcomps$hsamp
       if (!is.null(hcomps$hsamp.star)) { ## GPP
         Vcomps$hsamp.star <- hcomps$hsamp.star
@@ -760,7 +765,7 @@ bkmr_mcmc_probit_oneChain <- function(y,
     ## generate posterior samples of h(Znew) from its posterior P(hnew | beta, sigsq.eps, lambda, r, y)
 
     if (!is.null(Znew)) {
-      chain$hnew[s,] <- newh.update(Z = Z, Znew = Znew, Vcomps = Vcomps, lambda = chain$lambda[s,], sigsq.eps = chain$sigsq.eps[s], r = chain$r[s,], y = ycont, X = X, beta = chain$beta[s,], data.comps = data.comps)
+      chain$hnew[s,] <- newh.update(Z = Z, Znew = Znew, Vcomps = Vcomps, lambda = chain$lambda[s,], sigsq.eps = chain$sigsq.eps[s], r = chain$r[s,], y = ycont, X = X, beta = chain$beta[s,], data.comps = data.comps, M = M)
     }
 
     ###################################################
@@ -802,6 +807,7 @@ bkmr_mcmc_logit <- function(y,
                             iter = 1000,
                             warmup = 50,
                             verbose,
+                            M = 1,
                             ...){
   #####################
   #Set Starting Values
@@ -821,7 +827,7 @@ bkmr_mcmc_logit <- function(y,
   ###################
   #Format for STAN
   ###################
-  stanDat <- prepForStan(y, Z, X, starting.values)
+  stanDat <- prepForStan(y, Z, X, starting.values, M = M)
 
   ###################
   #Run STAN
@@ -869,6 +875,7 @@ bkmr_mcmc_logit_comp <- function(y,
                             iter = 1000,
                             warmup = 50,
                             verbose,
+                            M,
                             ...){
   #####################
   #Set Starting Values
@@ -888,7 +895,7 @@ bkmr_mcmc_logit_comp <- function(y,
   ###################
   #Format for STAN
   ###################
-  stanDat <- prepForStan(y, Z, X, starting.values)
+  stanDat <- prepForStan(y, Z, X, starting.values, M = M)
 
   ###################
   #Run STAN
@@ -949,6 +956,7 @@ bkmr_mcmc_poisson_log <- function(y,
                               iter = 1000,
                               warmup = 50,
                               verbose,
+                              M,
                               ...){
   #####################
   #Set Starting Values
@@ -968,7 +976,7 @@ bkmr_mcmc_poisson_log <- function(y,
   ###################
   #Format for STAN
   ###################
-  stanDat <- prepForStan(y, Z, X, starting.values)
+  stanDat <- prepForStan(y, Z, X, starting.values, M = M)
 
   ###################
   #Run STAN
@@ -1016,6 +1024,7 @@ bkmr_mcmc_poisson_log_comp <- function(y,
                                  iter = 1000,
                                  warmup = 50,
                                  verbose,
+                                 M,
                                  ...){
   #####################
   #Set Starting Values
@@ -1035,7 +1044,7 @@ bkmr_mcmc_poisson_log_comp <- function(y,
   ###################
   #Format for STAN
   ###################
-  stanDat <- prepForStan(y, Z, X, starting.values)
+  stanDat <- prepForStan(y, Z, X, starting.values, M = M)
 
   ###################
   #Run STAN

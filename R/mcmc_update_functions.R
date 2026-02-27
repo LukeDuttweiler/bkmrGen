@@ -6,15 +6,16 @@
 #' @param Vinv Inverse of V_\{lambda, Z, r\}, calculated with \code{\link{makeVcomps}}
 #' @param y Outcome vector
 #' @param sigsq.eps Sigma^2, variance component
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #'
 #' @return Sampled vector of Betas
-beta.update <- function(X, Vinv, y, sigsq.eps) {
+beta.update <- function(X, Vinv, y, sigsq.eps, M = 1) {
   XVinv <- crossprod(X, Vinv)
   Vbeta <- chol2inv(chol(XVinv %*% X))
   cholVbeta <- chol(Vbeta)
   betahat <- Vbeta %*% XVinv %*% y
   n01 <- rnorm(ncol(X))
-  betahat + crossprod(sqrt(sigsq.eps)*cholVbeta, n01)
+  betahat + crossprod(sqrt(sigsq.eps/M)*cholVbeta, n01)
 }
 
 #' Update sigma^2 parameter in Gibbs step
@@ -27,11 +28,12 @@ beta.update <- function(X, Vinv, y, sigsq.eps) {
 #' @param Vinv Inverse of V_\{lambda, Z, r\}, calculated with \code{\link{makeVcomps}}
 #' @param a.eps Prior shape parameter for Gamma distribution
 #' @param b.eps Prior rate parameter for Gamma distribution
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #'
 #' @return Sample from full conditional posterior
-sigsq.eps.update <- function(y, X, beta, Vinv, a.eps=1e-3, b.eps=1e-3) {
+sigsq.eps.update <- function(y, X, beta, Vinv, a.eps=1e-3, b.eps=1e-3, M = 1) {
   mu <- y - X%*%beta
-  prec.y <- rgamma(1, shape=a.eps + nrow(X)/2, rate=b.eps + 1/2*crossprod(mu, Vinv)%*%mu)
+  prec.y <- rgamma(1, shape=a.eps + (M*nrow(X))/2, rate=b.eps + M/2*crossprod(mu, Vinv)%*%mu)
   1/prec.y
 }
 
@@ -95,14 +97,15 @@ ystar.update.noh <- function(y, X, beta, Vinv, ystar) {
 #' @param Vcomps Components of V_\{lambda, Z, r\} matrix, calculated with \code{\link{makeVcomps}}
 #' @param move.type Type of move proposed for delta/r, not utilized, just passed through
 #' @param data.comps Info for interal VComps.star calculation
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #'
 #' @return List containing new MH values and inputs
-MHstep <- function(r, lambda, lambda.star, r.star, delta, delta.star, y, X, Z, beta, sigsq.eps, diffpriors, negdifflogproposal, Vcomps, move.type, data.comps) {
+MHstep <- function(r, lambda, lambda.star, r.star, delta, delta.star, y, X, Z, beta, sigsq.eps, diffpriors, negdifflogproposal, Vcomps, move.type, data.comps, M = 1) {
   ## compute log M-H ratio
   Vcomps.star <- makeVcomps(r.star, lambda.star, Z, data.comps)
   mu <- y - X%*%beta
   diffliks <- 1/2*Vcomps.star$logdetVinv - 1/2*Vcomps$logdetVinv - 1/2/sigsq.eps*crossprod(mu, Vcomps.star$Vinv - Vcomps$Vinv)%*%mu
-  logMHratio <- diffliks + diffpriors + negdifflogproposal
+  logMHratio <- M*diffliks + diffpriors + negdifflogproposal
   logalpha <- min(0,logMHratio)
   #if(is.nan(logalpha)){ #Protection against minor errors that can occur when r is defined on a distribution that is bounded above zero (which it can't be in theory, but makes some things smoother in practice sometimes)
   #  logalpha <- -Inf
@@ -134,9 +137,10 @@ MHstep <- function(r, lambda, lambda.star, r.star, delta, delta.star, y, X, Z, b
 #' @param Vcomps Components of V_\{lambda, Z, r\} matrix, calculated with \code{\link{makeVcomps}}
 #' @param data.comps Info for internal VComps.star calculation
 #' @param control.params Control parameter list from \code{\link{kmbayes}}, can adjust MH proposal variance or prior values
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #'
 #' @return MH Step output with updated version of lambda
-lambda.update <- function(r, delta, lambda, whichcomp=1, y, X, Z = Z, beta, sigsq.eps, Vcomps, data.comps, control.params) {
+lambda.update <- function(r, delta, lambda, whichcomp=1, y, X, Z = Z, beta, sigsq.eps, Vcomps, data.comps, control.params, M = 1) {
   lambda.jump <- control.params$lambda.jump[whichcomp]
   mu.lambda <- control.params$mu.lambda[whichcomp]
   sigma.lambda <- control.params$sigma.lambda[whichcomp]
@@ -165,7 +169,7 @@ lambda.update <- function(r, delta, lambda, whichcomp=1, y, X, Z = Z, beta, sigs
   lambda.star[whichcomp] <- lambdacomp.star
 
   ## M-H step
-  return(MHstep(r=r, lambda=lambda, lambda.star=lambda.star, r.star=r.star, delta=delta, delta.star=delta.star, y=y, X=X, Z=Z, beta=beta, sigsq.eps=sigsq.eps, diffpriors=diffpriors, negdifflogproposal=negdifflogproposal, Vcomps=Vcomps, move.type=move.type, data.comps=data.comps))
+  return(MHstep(r=r, lambda=lambda, lambda.star=lambda.star, r.star=r.star, delta=delta, delta.star=delta.star, y=y, X=X, Z=Z, beta=beta, sigsq.eps=sigsq.eps, diffpriors=diffpriors, negdifflogproposal=negdifflogproposal, Vcomps=Vcomps, move.type=move.type, data.comps=data.comps, M = M))
 }
 
 #' Adjust lambda proposal distribution to improve mixing
@@ -246,10 +250,11 @@ theta.update <- function(rmethod, r, delta, theta, control.params, rprior.logden
 #' @param rprop.gen Function for generating new r proposal value
 #' @param rprop.logdens Function to calculate log density for proposed r value
 #' @param rprior.logdens Function to calculate log density for proposed r under prior
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #' @param ... Catches unused arguments
 #'
 #' @return MH Step result containing updated r values
-r.update <- function(r, theta, whichcomp, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, data.comps, control.params, rprop.gen, rprop.logdens, rprior.logdens, ...) {
+r.update <- function(r, theta, whichcomp, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, data.comps, control.params, rprop.gen, rprop.logdens, rprior.logdens, M = 1, ...) {
   r.params <- make_r_params_comp(control.params$r.params, whichcomp)
   rcomp <- unique(r[whichcomp])
   tcomp <- unique(theta[whichcomp])
@@ -271,7 +276,7 @@ r.update <- function(r, theta, whichcomp, delta, lambda, y, X, beta, sigsq.eps, 
   r.star[whichcomp] <- rcomp.star
 
   ## M-H step
-  return(MHstep(r=r, lambda=lambda, lambda.star=lambda.star, r.star=r.star, delta=delta, delta.star=delta.star, y=y, X=X, Z=Z, beta=beta, sigsq.eps=sigsq.eps, diffpriors=diffpriors, negdifflogproposal=negdifflogproposal, Vcomps=Vcomps, move.type=move.type, data.comps=data.comps))
+  return(MHstep(r=r, lambda=lambda, lambda.star=lambda.star, r.star=r.star, delta=delta, delta.star=delta.star, y=y, X=X, Z=Z, beta=beta, sigsq.eps=sigsq.eps, diffpriors=diffpriors, negdifflogproposal=negdifflogproposal, Vcomps=Vcomps, move.type=move.type, data.comps=data.comps, M = M))
 }
 
 #' Update r and delta in a component-wise variable selection MCMC step
@@ -286,10 +291,11 @@ r.update <- function(r, theta, whichcomp, delta, lambda, y, X, beta, sigsq.eps, 
 #' @param rprior.logdens Prior log density function for move type 1
 #' @param rprop.logdens2 Proposal log density function for move type 2
 #' @param rprop.gen1 Proposal generation function for move type 1
+#' @param M Stochastic approximation constant. If StA is requested, M = K, otherwise M = 1.
 #' @param ... Catches unneeded arguments
 #'
 #' @return MH step result with update r and delta parameters
-rdelta.comp.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, ztest, data.comps, control.params, rprop.gen2, rprop.logdens1, rprior.logdens, rprop.logdens2, rprop.gen1, ...) { ## individual variable selection
+rdelta.comp.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, ztest, data.comps, control.params, rprop.gen2, rprop.logdens1, rprior.logdens, rprop.logdens2, rprop.gen1, M = 1, ...) { ## individual variable selection
   r.params <- control.params$r.params
   a.p0 <- control.params$a.p0
   b.p0 <- control.params$b.p0
@@ -326,7 +332,7 @@ rdelta.comp.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, V
   lambda.star <- lambda
 
   ## M-H step
-  return(MHstep(r=r, lambda=lambda, lambda.star=lambda.star, r.star=r.star, delta=delta, delta.star=delta.star, y=y, X=X, Z=Z, beta=beta, sigsq.eps=sigsq.eps, diffpriors=diffpriors, negdifflogproposal=negdifflogproposal, Vcomps=Vcomps, move.type=move.type, data.comps=data.comps))
+  return(MHstep(r=r, lambda=lambda, lambda.star=lambda.star, r.star=r.star, delta=delta, delta.star=delta.star, y=y, X=X, Z=Z, beta=beta, sigsq.eps=sigsq.eps, diffpriors=diffpriors, negdifflogproposal=negdifflogproposal, Vcomps=Vcomps, move.type=move.type, data.comps=data.comps, M = M))
 }
 
 #' Update r and delta in a group-wise hierarchical variable selection MCMC step
@@ -337,7 +343,7 @@ rdelta.comp.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, V
 #' @param ... Catches unused arguments
 #'
 #' @return MH step result with update r and delta parameters
-rdelta.group.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, ztest, data.comps, control.params, rprop.gen1, rprior.logdens, rprop.logdens1, rprop.gen2, rprop.logdens2, ...) { ## grouped variable selection
+rdelta.group.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, Vcomps, Z, ztest, data.comps, control.params, rprop.gen1, rprior.logdens, rprop.logdens1, rprop.gen2, rprop.logdens2, M = 1, ...) { ## grouped variable selection
   r.params <- control.params$r.params
   a.p0 <- control.params$a.p0
   b.p0 <- control.params$b.p0
@@ -426,7 +432,7 @@ rdelta.group.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, 
   lambda.star <- lambda
 
   ## M-H step
-  return(MHstep(r=r, lambda=lambda, lambda.star=lambda.star, r.star=r.star, delta=delta, delta.star=delta.star, y=y, X=X, Z=Z, beta=beta, sigsq.eps=sigsq.eps, diffpriors=diffpriors, negdifflogproposal=negdifflogproposal, Vcomps=Vcomps, move.type=move.type, data.comps=data.comps))
+  return(MHstep(r=r, lambda=lambda, lambda.star=lambda.star, r.star=r.star, delta=delta, delta.star=delta.star, y=y, X=X, Z=Z, beta=beta, sigsq.eps=sigsq.eps, diffpriors=diffpriors, negdifflogproposal=negdifflogproposal, Vcomps=Vcomps, move.type=move.type, data.comps=data.comps, M = M))
 }
 
 #' Update estimates of subject-specific health effects in a Gibbs step
@@ -436,7 +442,7 @@ rdelta.group.update <- function(r, theta, delta, lambda, y, X, beta, sigsq.eps, 
 #' @inheritParams r.update
 #'
 #' @return Updated draws of h values
-h.update <- function(lambda, Vcomps, sigsq.eps, y, X, beta, r, Z, data.comps) {
+h.update <- function(lambda, Vcomps, sigsq.eps, y, X, beta, r, Z, data.comps, M = 1) {
   if (is.null(Vcomps)) {
     Vcomps <- makeVcomps(r = r, lambda = lambda, Z = Z, data.comps = data.comps)
   }
@@ -448,7 +454,7 @@ h.update <- function(lambda, Vcomps, sigsq.eps, y, X, beta, r, Z, data.comps) {
     lamKVinv <- lambda*K%*%Vinv
     h.postmean <- lamKVinv%*%(y-X%*%beta)
     ##h.postvar <- sigsq.eps*lamKVinv
-    h.postvar <- sigsq.eps*lambda*(K - lamKVinv%*%K)
+    h.postvar <- (sigsq.eps/M)*lambda*(K - lamKVinv%*%K)
     h.postvar.sqrt <- try(chol(h.postvar), silent=TRUE)
     if(inherits(h.postvar.sqrt, "try-error")) {
       sigsvd <- svd(h.postvar)
@@ -457,7 +463,7 @@ h.update <- function(lambda, Vcomps, sigsq.eps, y, X, beta, r, Z, data.comps) {
     hsamp <- h.postmean + crossprod(h.postvar.sqrt, rnorm(length(h.postmean)))
     hcomps <- list(hsamp = hsamp)
   } else {
-    h.star.postvar.sqrt <- sqrt(sigsq.eps*lambda)*forwardsolve(t(Vcomps$cholR), Vcomps$Q)
+    h.star.postvar.sqrt <- sqrt(sigsq.eps*lambda/M)*forwardsolve(t(Vcomps$cholR), Vcomps$Q)
     h.star.postmean <- lambda[1]*Vcomps$Q %*% Vcomps$Rinv %*% Vcomps$K10 %*% (y - X %*% beta)
     hsamp.star <- h.star.postmean + crossprod(h.star.postvar.sqrt, rnorm(length(h.star.postmean)))
     hsamp <- t(Vcomps$K10) %*% Vcomps$Qinv %*% hsamp.star
@@ -472,7 +478,7 @@ h.update <- function(lambda, Vcomps, sigsq.eps, y, X, beta, r, Z, data.comps) {
 #' @param Znew Exposure design matrix for new subjects
 #'
 #' @return Updated samples of new h values
-newh.update <- function(Z, Znew, Vcomps, lambda, sigsq.eps, r, y, X, beta, data.comps) {
+newh.update <- function(Z, Znew, Vcomps, lambda, sigsq.eps, r, y, X, beta, data.comps, M = 1) {
 
   if(is.null(data.comps$knots)) {
     n0 <- nrow(Z)
@@ -487,7 +493,7 @@ newh.update <- function(Z, Znew, Vcomps, lambda, sigsq.eps, r, y, X, beta, data.
     Vinv <- Vcomps$Vinv
 
     lamK10Vinv <- lambda[1]*Kmat10 %*% Vinv
-    Sigma.hnew <- lambda[1]*sigsq.eps*(Kmat1 - lamK10Vinv %*% t(Kmat10))
+    Sigma.hnew <- lambda[1]*sigsq.eps/M*(Kmat1 - lamK10Vinv %*% t(Kmat10))
     mu.hnew <- lamK10Vinv %*% (y - X%*%beta)
     root.Sigma.hnew <- try(chol(Sigma.hnew), silent=TRUE)
     if(inherits(root.Sigma.hnew, "try-error")) {
@@ -503,10 +509,12 @@ newh.update <- function(Z, Znew, Vcomps, lambda, sigsq.eps, r, y, X, beta, data.
 
     if(is.null(Vcomps)) {
       Vcomps <- makeVcomps(r = r, lambda = lambda, Z = Z, data.comps = data.comps)
-      h.star.postvar.sqrt <- sqrt(sigsq.eps*lambda[1])*forwardsolve(t(Vcomps$cholR), Vcomps$Q)
-      h.star.postmean <- lambda[1]*Vcomps$Q %*% Vcomps$Rinv %*% Vcomps$K10 %*% (y - X %*% beta)
-      Vcomps$hsamp.star <- h.star.postmean + crossprod(h.star.postvar.sqrt, rnorm(length(h.star.postmean)))
     }
+
+    h.star.postvar.sqrt <- sqrt(sigsq.eps*lambda[1]/M)*forwardsolve(t(Vcomps$cholR), Vcomps$Q)
+    h.star.postmean <- lambda[1]*Vcomps$Q %*% Vcomps$Rinv %*% Vcomps$K10 %*% (y - X %*% beta)
+    Vcomps$hsamp.star <- h.star.postmean + crossprod(h.star.postvar.sqrt, rnorm(length(h.star.postmean)))
+
     hsamp <- Kmat10 %*% Vcomps$Qinv %*% Vcomps$hsamp.star
   }
 
@@ -515,6 +523,7 @@ newh.update <- function(Z, Znew, Vcomps, lambda, sigsq.eps, r, y, X, beta, data.
 
 
 #THESE SHOULD GO SOMEWHERE ELSE
+#CHECK IF THESE WORK WITH STOCHASTIC APPROXIMATION
 
 ## function to obtain posterior samples of h(znew) from fit of Bayesian kernel machine regression
 predz.samps <- function(fit, Znew, verbose = TRUE) {

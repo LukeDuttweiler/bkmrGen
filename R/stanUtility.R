@@ -1,7 +1,8 @@
 prepForStan <- function(y,
                         Z,
                         X,
-                        starting.values){
+                        starting.values,
+                        M){
   dt <- starting.values
   dt$y <- y
   dt$Z <- Z
@@ -9,6 +10,7 @@ prepForStan <- function(y,
   dt$p <- ncol(Z)
   dt$d <- ncol(X)
   dt$N <- length(y)
+  dt$M <- M
 
   return(dt)
 }

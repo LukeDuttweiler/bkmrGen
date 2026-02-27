@@ -5,6 +5,7 @@ data {
   matrix[N, d] X;
   array[N] vector[p] Z;
   int y[N];
+  int<lower=0> M;
 }
 
 transformed data {
@@ -42,7 +43,7 @@ model {
   lambda ~ gamma(1, 0.1);
   beta ~ normal(0, 100);
   h_tilde ~ normal(0, 1);
-  y ~ bernoulli_logit(ystar);
+  target += M * bernoulli_logit_lpmf(y | ystar);
 }
 
 generated quantities {

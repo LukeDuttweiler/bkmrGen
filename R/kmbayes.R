@@ -15,6 +15,7 @@
 #' @param id optional vector (of length \code{n}) of grouping factors for fitting a model with a random intercept. If NULL then no random intercept will be included.
 #' @param verbose TRUE or FALSE: flag indicating whether to print intermediate diagnostic information during the model fitting.
 #' @param Znew optional matrix of new predictor values at which to predict \code{h}, where each row represents a new observation. This will slow down the model fitting, and can be done as a post-processing step using \code{\link{SamplePred}}
+#' @param sApprox logical. if TRUE then Stochastic Approximation is used (only meaningful for K > 1) to reduce CI length, compensating for reduction in sample size enforced by sample splitting
 #' @param starting.values list of starting values for each parameter. If not specified default values will be chosen. (Only can change if family = gaussian() or binomial(link = 'logit'))
 #' @param control.params list of parameters specifying the prior distributions and tuning parameters for the MCMC algorithm. If not specified default values will be chosen. (Only can change if family = gaussian() or binomial(link = 'logit'))
 #' @param varsel TRUE or FALSE: indicator for whether to conduct variable selection on the Z variables in \code{h}
@@ -23,7 +24,7 @@
 #' @param ztest optional vector indicating on which variables in Z to conduct variable selection (the remaining variables will be forced into the model).
 #' @param rmethod for those predictors being forced into the \code{h} function, the method for sampling the \code{r[m]} values. Takes the value of 'varying' to allow separate \code{r[m]} for each predictor; 'equal' to force the same \code{r[m]} for each predictor; or 'fixed' to fix the \code{r[m]} to their starting values
 #' @param est.h TRUE or FALSE: indicator for whether to sample from the posterior distribution of the subject-specific effects h_i within the main sampler. This will slow down the model fitting. (Only relevant if family = gaussian() or binomial(link = 'logit'))
-#' @param WASPSolver Linear-program solver to use. Solvers available are provided by the R package ROI (see ?ROI for details).
+#' @param WASPSolver Linear-program solver to use. Solvers available are provided 100by the R package ROI (see ?ROI for details).
 #'
 #' @return an object of class "bkmrfit" (containing the posterior samples from the model fit), which has the associated methods: print, summary
 #' @export
@@ -62,6 +63,7 @@ kmbayes <- function(y,
                     id = NULL,
                     verbose = TRUE,
                     Znew = NULL,
+                    sApprox = FALSE,
                     starting.values = NULL,
                     control.params = NULL,
                     varsel = FALSE,
@@ -252,6 +254,9 @@ kmbayes <- function(y,
   }
   groupIdx <- cumsum(unlist(lapply(1:K, function(k){c(1, rep(0, groupSizes[k]-1))})))
 
+  #Set stochastic approximation constant as K if sApprox, and 1 otherwise
+  M <- ifelse(sApprox, K, 1)
+
   ###################
   #MCMC Sampling
   ###################
@@ -272,6 +277,7 @@ kmbayes <- function(y,
       sampCall$link <- link
       sampCall$missingX <- missingX
       sampCall$family <- family
+      sampCall$M <- M
 
       return(do.call(sampler, sampCall))
     },
@@ -287,6 +293,7 @@ kmbayes <- function(y,
       sampCall$link <- link
       sampCall$missingX <- missingX
       sampCall$family <- family
+      sampCall$M <- M
 
       return(do.call(sampler, sampCall))
     })
